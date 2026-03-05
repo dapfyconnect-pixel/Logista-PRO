@@ -16,8 +16,8 @@
         /* Header & Nav */
         .app-header { position: fixed; top: 0; width: 100%; background: #fff; z-index: 1000; border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
-        .nav-item-btn { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: 600; width: 25%; transition: 0.2s; }
-        .nav-item-btn i { font-size: 1.4rem; margin-bottom: 2px; }
+        .nav-item-btn { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: 600; width: 20%; transition: 0.2s; }
+        .nav-item-btn i { font-size: 1.3rem; margin-bottom: 2px; }
         .nav-item-btn.active { color: var(--brand); }
         
         /* Animations & Cards */
@@ -140,6 +140,23 @@
         </div>
     </div>
 
+    <div id="page-ofertas" class="app-page">
+        <h5 class="fw-bold mb-3">Mural de Ofertas</h5>
+        <div class="card-custom">
+            <div class="mb-3">
+                <label class="small fw-bold text-muted">TÍTULO DA PROMOÇÃO</label>
+                <input type="text" id="ofertaTitulo" class="form-control" placeholder="Ex: Black Friday Antecipada">
+            </div>
+            <div class="mb-3">
+                <label class="small fw-bold text-muted">MENSAGEM / REGRAS</label>
+                <textarea id="ofertaDesc" class="form-control" rows="3" placeholder="Ex: 20% de cashback em toda a loja hoje!"></textarea>
+            </div>
+            <button id="btnPostarOferta" onclick="publicarOferta()" class="btn-brand bg-primary">Publicar no Mural dos Clientes</button>
+        </div>
+        <div id="minhasOfertas" class="mt-4">
+            </div>
+    </div>
+
     <div id="page-hist" class="app-page">
         <h5 class="fw-bold mb-3">Últimas Transações</h5>
         <div id="listaTransacoes"></div>
@@ -148,14 +165,15 @@
 
 <nav class="bottom-nav">
     <button class="nav-item-btn active" onclick="nav('home')"><i class="bi bi-graph-up-arrow"></i><span>Painel</span></button>
-    <button class="nav-item-btn" onclick="nav('venda')"><i class="bi bi-plus-circle-fill" style="font-size: 1.8rem; color: var(--brand);"></i><span>Venda</span></button>
+    <button class="nav-item-btn" onclick="nav('venda')"><i class="bi bi-plus-circle-fill"></i><span>Venda</span></button>
     <button class="nav-item-btn" onclick="nav('resgate')"><i class="bi bi-wallet2"></i><span>Resgate</span></button>
+    <button class="nav-item-btn" onclick="nav('ofertas')"><i class="bi bi-megaphone"></i><span>Mural</span></button>
     <button class="nav-item-btn" onclick="nav('hist')"><i class="bi bi-list-check"></i><span>Extrato</span></button>
 </nav>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -180,6 +198,7 @@
         document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('page-' + pageId).classList.add('active');
         event.currentTarget.classList.add('active');
+        if(pageId === 'ofertas') carregarMinhasOfertas();
     };
 
     window.showAuth = (screen) => {
@@ -197,32 +216,25 @@
         const nome = document.getElementById('regNome').value;
         const email = document.getElementById('regEmail').value;
         const senha = document.getElementById('regSenha').value;
-
-        if(!nome || !email || senha.length < 6) return alert("Preencha todos os dados. Senha mín. 6 caracteres.");
-
+        if(!nome || !email || senha.length < 6) return alert("Preencha todos os dados.");
         try {
             const userCred = await createUserWithEmailAndPassword(auth, email, senha);
             await addDoc(collection(db, "usuarios"), { uid: userCred.user.uid, nome, email });
             alert("Loja criada com sucesso!");
             location.reload();
-        } catch (e) { alert("Erro ao cadastrar: " + e.message); }
+        } catch (e) { alert("Erro: " + e.message); }
     };
 
     window.login = async () => {
         const email = document.getElementById('loginEmail').value;
         const senha = document.getElementById('loginSenha').value;
-        try {
-            await signInWithEmailAndPassword(auth, email, senha);
-        } catch (e) { alert("Dados incorretos."); }
+        try { await signInWithEmailAndPassword(auth, email, senha); } catch (e) { alert("Dados incorretos."); }
     };
 
     window.resetarSenha = async () => {
         const email = document.getElementById('loginEmail').value;
-        if(!email) return alert("Digite seu e-mail no campo acima.");
-        try {
-            await sendPasswordResetEmail(auth, email);
-            alert("Link de recuperação enviado para seu e-mail!");
-        } catch (e) { alert("Erro: " + e.message); }
+        if(!email) return alert("Digite seu e-mail.");
+        try { await sendPasswordResetEmail(auth, email); alert("Link enviado!"); } catch (e) { alert("Erro."); }
     };
 
     window.logout = () => signOut(auth).then(() => location.reload());
@@ -238,18 +250,57 @@
                 document.getElementById('auth-section').style.display = 'none';
                 startSync();
             }
-        } else {
-            document.getElementById('auth-section').style.display = 'flex';
-        }
+        } else { document.getElementById('auth-section').style.display = 'flex'; }
     });
 
     function startSync() {
         const q = query(collection(db, "transacoes"), where("loja", "==", logado.email));
         onSnapshot(q, (snapshot) => {
-            transacoesCache = snapshot.docs.map(doc => doc.data())
-                .sort((a, b) => new Date(b.data) - new Date(a.data));
+            transacoesCache = snapshot.docs.map(doc => doc.data()).sort((a, b) => new Date(b.data) - new Date(a.data));
             render();
         });
+    }
+
+    // --- MURAL DE OFERTAS ---
+    window.publicarOferta = async () => {
+        const titulo = document.getElementById('ofertaTitulo').value;
+        const descricao = document.getElementById('ofertaDesc').value;
+        if(!titulo || !descricao) return alert("Preencha o título e a descrição.");
+
+        const btn = document.getElementById('btnPostarOferta');
+        btn.disabled = true;
+
+        try {
+            await addDoc(collection(db, "ofertas"), {
+                lojaEmail: logado.email,
+                titulo,
+                descricao,
+                data: new Date().toISOString()
+            });
+            alert("Oferta publicada no mural dos clientes!");
+            document.getElementById('ofertaTitulo').value = "";
+            document.getElementById('ofertaDesc').value = "";
+            carregarMinhasOfertas();
+        } catch(e) { alert("Erro ao publicar."); }
+        finally { btn.disabled = false; }
+    };
+
+    async function carregarMinhasOfertas() {
+        const q = query(collection(db, "ofertas"), where("lojaEmail", "==", logado.email), orderBy("data", "desc"), limit(5));
+        const snap = await getDocs(q);
+        const div = document.getElementById('minhasOfertas');
+        
+        if(snap.empty) {
+            div.innerHTML = "";
+            return;
+        }
+
+        div.innerHTML = '<h6 class="fw-bold mb-3 small text-muted">Ofertas Ativas</h6>' + snap.docs.map(doc => `
+            <div class="card-custom p-3 mb-2" style="background: #f1f5f9; border:none">
+                <div class="fw-bold small text-primary">${doc.data().titulo}</div>
+                <div class="small text-muted">${doc.data().descricao}</div>
+            </div>
+        `).join('');
     }
 
     // --- TRANSAÇÕES ---
@@ -277,12 +328,12 @@
             if(tipo === 'venda') {
                 document.getElementById('vendaCpf').value = "";
                 document.getElementById('vendaValor').value = "";
-                alert("Venda registrada com sucesso!");
+                alert("Sucesso!");
             } else {
                 document.getElementById('boxResultado').style.display = 'none';
                 alert("Resgate realizado!");
             }
-        } catch(e) { alert("Erro ao processar."); }
+        } catch(e) { alert("Erro."); }
         finally { btn.disabled = false; }
     };
 
@@ -292,18 +343,15 @@
         const saldo = minhas.reduce((a, b) => a + (b.cashback || 0), 0) - minhas.reduce((a, b) => a + (b.debito || 0), 0);
         document.getElementById('valorSaldo').innerText = `R$ ${saldo.toFixed(2)}`;
         document.getElementById('boxResultado').style.display = saldo > 0 ? 'block' : 'none';
-        if(saldo <= 0) alert("Saldo zerado ou cliente não encontrado.");
+        if(saldo <= 0) alert("Sem saldo.");
         window.tempSaldo = saldo;
     };
 
-    window.efetuarResgateIntegral = () => {
-        if(window.tempSaldo > 0) registrarTransacao('resgate', window.tempSaldo);
-    };
+    window.efetuarResgateIntegral = () => { if(window.tempSaldo > 0) registrarTransacao('resgate', window.tempSaldo); };
 
     function render() {
         const totalV = transacoesCache.filter(t => t.tipo === 'venda').reduce((a, b) => a + (b.valor || 0), 0);
         const totalC = transacoesCache.reduce((a, b) => a + (b.cashback || 0), 0) - transacoesCache.reduce((a, b) => a + (b.debito || 0), 0);
-        
         document.getElementById('dashVendas').innerText = `R$ ${totalV.toFixed(0)}`;
         document.getElementById('dashCash').innerText = `R$ ${totalC.toFixed(2)}`;
         document.getElementById('dashClientes').innerText = [...new Set(transacoesCache.map(t => t.cpf))].length;
@@ -318,9 +366,7 @@
                     </div>
                     <div class="text-end">
                         <span class="badge ${t.tipo==='venda'?'bg-primary':'bg-warning text-dark'} mb-1">${t.tipo.toUpperCase()}</span>
-                        <div class="fw-bold ${t.tipo==='venda'?'text-success':'text-danger'}">
-                            ${t.tipo==='venda' ? '+ R$ '+t.cashback.toFixed(2) : '- R$ '+t.debito.toFixed(2)}
-                        </div>
+                        <div class="fw-bold ${t.tipo==='venda'?'text-success':'text-danger'}">${t.tipo==='venda' ? '+ R$ '+t.cashback.toFixed(2) : '- R$ '+t.debito.toFixed(2)}</div>
                     </div>
                 </div>
             </div>
