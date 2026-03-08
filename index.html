@@ -189,30 +189,35 @@
         }, 3000); 
     });
 
-    // --- FUNÇÃO ORIGINAL ATUALIZADA COM TRAVA DE STATUS ---
+    // --- LÓGICA DE BLOQUEIO INTEGRADA NA ESTRUTURA ORIGINAL ---
     function checkAuthState() {
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
+                // Monitoramento em tempo real do status do lojista
                 const q = query(collection(db, "usuarios"), where("email", "==", user.email));
-                const snap = await getDocs(q);
-                if(!snap.empty) {
-                    const dadosDoc = snap.docs[0].data();
-                    
-                    // Bloqueio Master: Se o status não for ativo, expulsa do app
-                    if(dadosDoc.status === 'pendente' || dadosDoc.status === 'bloqueado') {
-                        alert("⚠️ Acesso suspenso pela administração.");
-                        await signOut(auth);
-                        location.reload();
-                        return;
-                    }
+                onSnapshot(q, (snap) => {
+                    if(!snap.empty) {
+                        const dadosDoc = snap.docs[0].data();
+                        
+                        // Verificação de Bloqueio Master
+                        if(dadosDoc.status === 'pendente' || dadosDoc.status === 'bloqueado') {
+                            alert("⚠️ Sua conta está suspensa. Entre em contato com o suporte DAPfy Master.");
+                            signOut(auth).then(() => location.reload());
+                            return;
+                        }
 
-                    docIdUsuario = snap.docs[0].id;
-                    logado = dadosDoc;
-                    atualizarInterfaceLoja();
-                    document.getElementById('auth-section').style.display = 'none';
-                    startSync();
-                } else { logout(); }
-            } else { document.getElementById('auth-section').style.display = 'flex'; }
+                        docIdUsuario = snap.docs[0].id;
+                        logado = dadosDoc;
+                        atualizarInterfaceLoja();
+                        document.getElementById('auth-section').style.display = 'none';
+                        startSync();
+                    } else { 
+                        logout(); 
+                    }
+                });
+            } else { 
+                document.getElementById('auth-section').style.display = 'flex'; 
+            }
         });
     }
 
@@ -259,7 +264,6 @@
         const senha = document.getElementById('regSenha').value;
         try { 
             const userCred = await createUserWithEmailAndPassword(auth, email, senha); 
-            // Salva com status 'ativo' por padrão no cadastro original
             await addDoc(collection(db, "usuarios"), { uid: userCred.user.uid, nome, email, status: 'ativo' }); 
         } catch (e) { alert("Erro no cadastro."); }
     };
