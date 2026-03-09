@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        :root { --brand: #4f46e5; --bg: #f8fafc; --nav-bg: #ffffff; --text: #1e293b; }
+        :root { --brand: #4f46e5; --bg: #f8fafc; --nav-bg: #ffffff; --text: #1e293b; --danger: #ef4444; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 90px; padding-top: 75px; margin: 0; overflow: hidden; }
         
         .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s; }
@@ -32,9 +32,38 @@
         .form-control { border-radius: 12px; padding: 12px; border: 1px solid #cbd5e1; }
         .auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .card-auth { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 35px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+
+        /* --- NOVOS ESTILOS DE BLOQUEIO E AVISO --- */
+        #avisoVencimento { position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #fff3cd; border: 1px solid #ffeeba; padding: 12px 16px; border-radius: 14px; z-index: 1500; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.08); animation: slideDown 0.4s ease; }
+        @keyframes slideDown { from { top: 20px; opacity: 0; } to { top: 75px; opacity: 1; } }
+        
+        #bloqueioLicenca { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(8px); }
+        .card-bloqueio { background: white; border-radius: 28px; padding: 35px; text-align: center; max-width: 380px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .btn-renovar-wpp { background: #25d366; color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; margin-top: 20px; text-decoration: none; display: block; }
     </style>
 </head>
 <body>
+
+<div id="avisoVencimento">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="small text-dark">
+            <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
+            Licença vence em <b id="diasAviso">--</b> dias.
+        </div>
+        <a id="linkAvisoZap" href="#" target="_blank" class="btn btn-sm btn-dark rounded-pill fw-bold" style="font-size: 0.65rem;">Renovar</a>
+    </div>
+</div>
+
+<div id="bloqueioLicenca">
+    <div class="card-bloqueio text-center">
+        <i class="bi bi-shield-lock-fill text-danger mb-3" style="font-size: 3.5rem;"></i>
+        <h4 class="fw-bold">Acesso Suspenso</h4>
+        <p class="text-muted small">Sua licença mensal **DAPfy** expirou. Renove para continuar usando o sistema.</p>
+        <a id="btnWhatsRenovacao" href="#" target="_blank" class="btn-renovar-wpp shadow-sm">
+           <i class="bi bi-whatsapp"></i> Falar com Suporte
+        </a>
+    </div>
+</div>
 
 <div id="splash-screen" class="splash-screen">
     <img src="https://i.ibb.co/Z1z4tSvj/1772903229417.png" alt="DAPfy Logo" class="splash-logo">
@@ -139,7 +168,6 @@
 
     <div id="page-config" class="app-page">
         <h5 class="fw-bold mb-3">Configurações da Loja</h5>
-        
         <div class="card-custom mb-3">
             <div class="mb-3">
                 <label class="small fw-bold text-muted">NOME DA LOJA EXIBIDO</label>
@@ -189,38 +217,69 @@
         }, 3000); 
     });
 
-    // --- LÓGICA DE BLOQUEIO INTEGRADA NA ESTRUTURA ORIGINAL ---
+    // --- MONITORAMENTO DE STATUS E CICLO ---
     function checkAuthState() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Monitoramento em tempo real do status do lojista
                 const q = query(collection(db, "usuarios"), where("email", "==", user.email));
                 onSnapshot(q, (snap) => {
                     if(!snap.empty) {
                         const dadosDoc = snap.docs[0].data();
-                        
-                        // Verificação de Bloqueio Master
-                        if(dadosDoc.status === 'pendente' || dadosDoc.status === 'bloqueado') {
-                            alert("⚠️ Sua conta está suspensa. Entre em contato com o suporte DAPfy Master.");
-                            signOut(auth).then(() => location.reload());
-                            return;
-                        }
-
                         docIdUsuario = snap.docs[0].id;
                         logado = dadosDoc;
+                        
+                        // Executa Gestão de Ciclo e Bloqueio
+                        gerenciarCicloDAPfy(dadosDoc);
+
                         atualizarInterfaceLoja();
                         document.getElementById('auth-section').style.display = 'none';
                         startSync();
-                    } else { 
-                        logout(); 
-                    }
+                    } else { logout(); }
                 });
-            } else { 
-                document.getElementById('auth-section').style.display = 'flex'; 
-            }
+            } else { document.getElementById('auth-section').style.display = 'flex'; }
         });
     }
 
+    // --- FUNÇÃO DE GESTÃO DE CICLO (30 DIAS) ---
+    function gerenciarCicloDAPfy(usuario) {
+        if (!usuario.dataCadastro) return;
+        
+        const hoje = new Date();
+        const dataInic = new Date(usuario.dataCadastro);
+        const diff = hoje - dataInic;
+        const diasPassados = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const diasRestantes = Math.max(0, 30 - diasPassados);
+
+        const modalBloqueio = document.getElementById('bloqueioLicenca');
+        const boxAviso = document.getElementById('avisoVencimento');
+        const txtDiasAviso = document.getElementById('diasAviso');
+        const linkAvisoZap = document.getElementById('linkAvisoZap');
+        const btnWhatsBloqueio = document.getElementById('btnWhatsRenovacao');
+
+        const seuZap = "5599999999999"; // <-- Seu WhatsApp Master
+        const msg = `Olá Diego! Quero renovar minha licença DAPfy.\n*Loja:* ${usuario.nome}\n*E-mail:* ${usuario.email}`;
+        const linkFull = `https://wa.me/${seuZap}?text=${encodeURIComponent(msg)}`;
+
+        // Bloqueio Total
+        if (diasRestantes <= 0) {
+            boxAviso.style.display = "none";
+            modalBloqueio.style.display = "flex";
+            document.body.style.overflow = "hidden";
+            btnWhatsBloqueio.href = linkFull;
+        } 
+        // Aviso Prévio (3 dias)
+        else if (diasRestantes <= 3) {
+            boxAviso.style.display = "block";
+            txtDiasAviso.innerText = diasRestantes;
+            linkAvisoZap.href = linkFull;
+        } else {
+            boxAviso.style.display = "none";
+            modalBloqueio.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+    }
+
+    // --- RESTANTE DO CÓDIGO ORIGINAL ---
     function atualizarInterfaceLoja() {
         document.getElementById('displayLoja').innerText = logado.nome;
         document.getElementById('editNomeLoja').value = logado.nome;
@@ -228,14 +287,14 @@
 
     window.esqueciSenha = async () => {
         const email = document.getElementById('loginEmail').value;
-        if(!email) return alert("Digite seu e-mail de login.");
-        try { await sendPasswordResetEmail(auth, email); alert("E-mail enviado!"); } catch (e) { alert("Erro ao enviar."); }
+        if(!email) return alert("Digite seu e-mail.");
+        try { await sendPasswordResetEmail(auth, email); alert("E-mail enviado!"); } catch (e) { alert("Erro."); }
     };
 
     window.salvarNovoNome = async () => {
         const novoNome = document.getElementById('editNomeLoja').value;
         if(!novoNome) return alert("Digite um nome.");
-        try { await updateDoc(doc(db, "usuarios", docIdUsuario), { nome: novoNome }); logado.nome = novoNome; atualizarInterfaceLoja(); alert("Nome atualizado!"); } catch (e) { alert("Erro ao atualizar."); }
+        try { await updateDoc(doc(db, "usuarios", docIdUsuario), { nome: novoNome }); logado.nome = novoNome; atualizarInterfaceLoja(); alert("Nome atualizado!"); } catch (e) { alert("Erro."); }
     };
 
     window.nav = (pageId) => {
@@ -243,9 +302,6 @@
         document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
         const target = document.getElementById('page-' + pageId);
         if(target) target.classList.add('active');
-        const btn = Array.from(document.querySelectorAll('.nav-item-btn')).find(b => b.innerHTML.includes(pageId === 'home' ? 'Painel' : pageId === 'venda' ? 'Venda' : pageId === 'resgate' ? 'Resgate' : pageId === 'ofertas' ? 'Mural' : 'Extrato'));
-        if(btn) btn.classList.add('active');
-        if(pageId === 'ofertas') carregarMinhasOfertas();
     };
 
     window.showAuth = (screen) => {
@@ -264,7 +320,7 @@
         const senha = document.getElementById('regSenha').value;
         try { 
             const userCred = await createUserWithEmailAndPassword(auth, email, senha); 
-            await addDoc(collection(db, "usuarios"), { uid: userCred.user.uid, nome, email, status: 'ativo' }); 
+            await addDoc(collection(db, "usuarios"), { uid: userCred.user.uid, nome, email, status: 'ativo', dataCadastro: new Date().toISOString() }); 
         } catch (e) { alert("Erro no cadastro."); }
     };
 
@@ -288,7 +344,7 @@
         const cpf = (tipo === 'venda' ? document.getElementById('vendaCpf').value : document.getElementById('buscaCpf').value);
         const valor = valorManual || parseFloat(document.getElementById('vendaValor').value);
         const pct = parseFloat(document.getElementById('vendaPct').value) || 0;
-        try { await addDoc(collection(db, "transacoes"), { loja: logado.email, cpf, valor: tipo === 'venda' ? valor : 0, pct: tipo === 'venda' ? pct : 0, cashback: tipo === 'venda' ? (valor * (pct/100)) : 0, debito: tipo === 'resgate' ? valor : 0, tipo, data: new Date().toISOString() }); alert("Sucesso!"); } catch(e) { alert("Erro ao gravar."); }
+        try { await addDoc(collection(db, "transacoes"), { loja: logado.email, cpf, valor: tipo === 'venda' ? valor : 0, pct: tipo === 'venda' ? pct : 0, cashback: tipo === 'venda' ? (valor * (pct/100)) : 0, debito: tipo === 'resgate' ? valor : 0, tipo, data: new Date().toISOString() }); alert("Sucesso!"); } catch(e) { alert("Erro."); }
     };
 
     window.buscarSaldo = () => {
@@ -305,14 +361,14 @@
     window.publicarOferta = async () => {
         const titulo = document.getElementById('ofertaTitulo').value;
         const descricao = document.getElementById('ofertaDesc').value;
-        try { await addDoc(collection(db, "ofertas"), { lojaEmail: logado.email, titulo, descricao, data: new Date().toISOString() }); alert("Oferta publicada!"); carregarMinhasOfertas(); } catch(e) { alert("Erro ao publicar."); }
+        try { await addDoc(collection(db, "ofertas"), { lojaEmail: logado.email, titulo, descricao, data: new Date().toISOString() }); alert("Oferta publicada!"); carregarMinhasOfertas(); } catch(e) { alert("Erro."); }
     };
 
     async function carregarMinhasOfertas() {
         const q = query(collection(db, "ofertas"), where("lojaEmail", "==", logado.email));
         const snap = await getDocs(q);
         const div = document.getElementById('minhasOfertas');
-        div.innerHTML = '<h6 class="fw-bold mb-3 small text-muted">Ofertas Publicadas</h6>' + (snap.empty ? '<p class="text-muted small">Nenhuma oferta ativa.</p>' : snap.docs.map(docSnap => { const o = docSnap.data(); return `<div class="card-custom p-3 mb-2" style="background: #f1f5f9; border:none"><div class="d-flex justify-content-between"><div><div class="fw-bold small text-primary">${o.titulo}</div><div class="small text-muted">${o.descricao}</div></div><button onclick="removerOferta('${docSnap.id}')" class="btn btn-sm text-danger"><i class="bi bi-trash"></i></button></div></div>`; }).join(''));
+        div.innerHTML = (snap.empty ? '<p class="text-muted small">Nenhuma oferta ativa.</p>' : snap.docs.map(docSnap => { const o = docSnap.data(); return `<div class="card-custom p-3 mb-2" style="background: #f1f5f9; border:none"><div class="d-flex justify-content-between"><div><div class="fw-bold small text-primary">${o.titulo}</div><div class="small text-muted">${o.descricao}</div></div><button onclick="removerOferta('${docSnap.id}')" class="btn btn-sm text-danger"><i class="bi bi-trash"></i></button></div></div>`; }).join(''));
     }
 
     window.removerOferta = async (id) => { if(confirm("Remover?")) { await deleteDoc(doc(db, "ofertas", id)); carregarMinhasOfertas(); } };
@@ -326,7 +382,7 @@
         const cpfsComSaldo = cpfsUnicos.filter(cpf => { const tCpf = transacoesCache.filter(t => t.cpf === cpf); return (tCpf.reduce((a, b) => a + (b.cashback || 0), 0) - tCpf.reduce((a, b) => a + (b.debito || 0), 0)) > 0.01; });
         document.getElementById('dashClientes').innerText = cpfsComSaldo.length;
         const histDiv = document.getElementById('listaTransacoes');
-        histDiv.innerHTML = transacoesCache.length === 0 ? '<div class="text-center p-4 text-muted small">Não há transações.</div>' : transacoesCache.map(t => `<div class="card-custom p-3 mb-2"><div class="d-flex justify-content-between align-items-center"><div><small class="text-muted d-block">${new Date(t.data).toLocaleDateString()}</small><b class="small">${t.cpf}</b></div><div class="text-end"><span class="badge ${t.tipo==='venda'?'bg-primary':'bg-warning text-dark'} mb-1" style="font-size:0.6rem">${t.tipo.toUpperCase()}</span><div class="${t.tipo==='venda'?'text-success':'text-danger'} fw-bold" style="font-size:0.9rem">${t.tipo==='venda'?'+':'-'} R$ ${(t.cashback || t.debito).toFixed(2)}</div></div></div></div>`).join('');
+        histDiv.innerHTML = transacoesCache.length === 0 ? '<div class="text-center p-4 text-muted small">Sem transações.</div>' : transacoesCache.map(t => `<div class="card-custom p-3 mb-2"><div class="d-flex justify-content-between"><div><small class="text-muted">${new Date(t.data).toLocaleDateString()}</small><b class="d-block small">${t.cpf}</b></div><div class="text-end"><span class="badge ${t.tipo==='venda'?'bg-primary':'bg-warning text-dark'}" style="font-size:0.6rem">${t.tipo.toUpperCase()}</span><div class="${t.tipo==='venda'?'text-success':'text-danger'} fw-bold">R$ ${(t.cashback || t.debito).toFixed(2)}</div></div></div></div>`).join('');
     }
 </script>
 </body>
