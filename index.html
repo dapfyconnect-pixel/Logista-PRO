@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cashback Pro | Painel Lojista</title>
+    <title>DAPfy | Painel Lojista</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -11,35 +11,36 @@
     
     <style>
         :root { --brand: #4f46e5; --bg: #f8fafc; --nav-bg: #ffffff; --text: #1e293b; --danger: #ef4444; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 90px; padding-top: 75px; margin: 0; overflow: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 90px; padding-top: 75px; margin: 0; }
         
+        /* Splash Screen */
         .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s; }
         .splash-screen.fade-out { opacity: 0; visibility: hidden; }
-        .splash-logo { max-width: 200px; height: auto; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .splash-logo { max-width: 120px; height: auto; margin-bottom: 20px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
         
+        /* Layout */
         .app-header { position: fixed; top: 0; width: 100%; background: #fff; z-index: 1000; border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
         .nav-item-btn { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: 600; width: 20%; transition: 0.2s; }
         .nav-item-btn i { font-size: 1.3rem; margin-bottom: 2px; }
         .nav-item-btn.active { color: var(--brand); }
+
+        /* Componentes UI */
         .app-page { display: none; animation: fadeIn 0.3s ease; }
         .app-page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .card-custom { background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 15px; }
         .btn-brand { background: var(--brand); color: white; border-radius: 14px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
-        .btn-brand:active { transform: scale(0.98); }
         .form-control { border-radius: 12px; padding: 12px; border: 1px solid #cbd5e1; }
-        .auth-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+
+        /* Auth */
+        .auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .card-auth { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 35px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        /* --- NOVOS ESTILOS DE BLOQUEIO E AVISO --- */
+        /* AVISO DE RENOVAÇÃO (SEM BLOQUEIO) */
         #avisoVencimento { position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #fff3cd; border: 1px solid #ffeeba; padding: 12px 16px; border-radius: 14px; z-index: 1500; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.08); animation: slideDown 0.4s ease; }
         @keyframes slideDown { from { top: 20px; opacity: 0; } to { top: 75px; opacity: 1; } }
-        
-        #bloqueioLicenca { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(8px); }
-        .card-bloqueio { background: white; border-radius: 28px; padding: 35px; text-align: center; max-width: 380px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .btn-renovar-wpp { background: #25d366; color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; margin-top: 20px; text-decoration: none; display: block; }
     </style>
 </head>
 <body>
@@ -48,26 +49,15 @@
     <div class="d-flex align-items-center justify-content-between">
         <div class="small text-dark">
             <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
-            Licença vence em <b id="diasAviso">--</b> dias.
+            <span id="txtAviso">Licença vence em <b id="diasAviso">--</b> dias.</span>
         </div>
         <a id="linkAvisoZap" href="#" target="_blank" class="btn btn-sm btn-dark rounded-pill fw-bold" style="font-size: 0.65rem;">Renovar</a>
     </div>
 </div>
 
-<div id="bloqueioLicenca">
-    <div class="card-bloqueio text-center">
-        <i class="bi bi-shield-lock-fill text-danger mb-3" style="font-size: 3.5rem;"></i>
-        <h4 class="fw-bold">Acesso Suspenso</h4>
-        <p class="text-muted small">Sua licença mensal **DAPfy** expirou. Renove para continuar usando o sistema.</p>
-        <a id="btnWhatsRenovacao" href="#" target="_blank" class="btn-renovar-wpp shadow-sm">
-           <i class="bi bi-whatsapp"></i> Falar com Suporte
-        </a>
-    </div>
-</div>
-
 <div id="splash-screen" class="splash-screen">
-    <img src="https://i.ibb.co/Z1z4tSvj/1772903229417.png" alt="DAPfy Logo" class="splash-logo">
-    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div>
+    <img src="https://i.ibb.co/Z1z4tSvj/1772903229417.png" alt="DAPfy" class="splash-logo">
+    <div class="spinner-border text-primary" role="status"></div>
 </div>
 
 <div id="auth-section" class="auth-screen">
@@ -84,7 +74,7 @@
         <div class="text-end mb-4">
             <button onclick="esqueciSenha()" class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.75rem;">Esqueci minha senha</button>
         </div>
-        <button id="btnLogin" onclick="login()" class="btn-brand shadow mb-3">Entrar</button>
+        <button onclick="login()" class="btn-brand shadow mb-3">Entrar</button>
         <p class="text-center small">Novo aqui? <span class="text-primary fw-bold" style="cursor:pointer" onclick="showAuth('reg')">Criar Conta</span></p>
     </div>
 
@@ -96,24 +86,22 @@
             <input type="password" id="regSenha" class="form-control" placeholder="Senha (mín. 6 caracteres)" style="border-right:none">
             <span class="input-group-text bg-white" style="cursor:pointer" onclick="togglePass('regSenha')"><i class="bi bi-eye"></i></span>
         </div>
-        <button id="btnReg" onclick="cadastrar()" class="btn-brand mb-3">Cadastrar Loja</button>
+        <button onclick="cadastrar()" class="btn-brand mb-3">Cadastrar Loja</button>
         <p class="text-center small" onclick="showAuth('login')" style="cursor:pointer">Voltar ao login</p>
     </div>
 </div>
 
-<div class="app-header">
+<header class="app-header">
     <div class="container d-flex justify-content-between align-items-center">
-        <span class="fw-bold text-primary" onclick="nav('home')" style="cursor:pointer">
-            <i class="bi bi-lightning-fill"></i> <span id="displayLoja">Loja</span>
-        </span>
+        <span class="fw-bold text-primary"><i class="bi bi-lightning-fill"></i> <span id="displayLoja">Loja</span></span>
         <div>
             <button onclick="nav('config')" class="btn btn-sm btn-light rounded-pill me-1"><i class="bi bi-gear"></i></button>
             <button onclick="logout()" class="btn btn-sm btn-light rounded-pill"><i class="bi bi-box-arrow-right"></i></button>
         </div>
     </div>
-</div>
+</header>
 
-<div class="container">
+<div class="container mt-3">
     <div id="page-home" class="app-page active">
         <h5 class="fw-bold mb-3">Visão Geral</h5>
         <div class="row g-2">
@@ -162,17 +150,15 @@
     </div>
 
     <div id="page-hist" class="app-page">
-        <h5 class="fw-bold mb-3">Transações Pendentes</h5>
+        <h5 class="fw-bold mb-3">Extrato Geral</h5>
         <div id="listaTransacoes"></div>
     </div>
 
     <div id="page-config" class="app-page">
-        <h5 class="fw-bold mb-3">Configurações da Loja</h5>
+        <h5 class="fw-bold mb-3">Configurações</h5>
         <div class="card-custom mb-3">
-            <div class="mb-3">
-                <label class="small fw-bold text-muted">NOME DA LOJA EXIBIDO</label>
-                <input type="text" id="editNomeLoja" class="form-control" placeholder="Ex: Minha Loja">
-            </div>
+            <label class="small fw-bold text-muted">NOME DA LOJA</label>
+            <input type="text" id="editNomeLoja" class="form-control mb-3">
             <button onclick="salvarNovoNome()" class="btn-brand bg-dark shadow">Atualizar Nome</button>
         </div>
     </div>
@@ -207,31 +193,29 @@
     let logado = null;
     let docIdUsuario = null;
     let transacoesCache = [];
-    window.tempSaldo = 0;
 
     window.addEventListener('load', () => {
         setTimeout(() => {
             document.getElementById('splash-screen').classList.add('fade-out');
-            document.body.style.overflow = 'auto';
             checkAuthState();
         }, 3000); 
     });
 
-    // --- MONITORAMENTO DE STATUS E CICLO ---
     function checkAuthState() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const q = query(collection(db, "usuarios"), where("email", "==", user.email));
                 onSnapshot(q, (snap) => {
                     if(!snap.empty) {
-                        const dadosDoc = snap.docs[0].data();
+                        const dados = snap.docs[0].data();
                         docIdUsuario = snap.docs[0].id;
-                        logado = dadosDoc;
+                        logado = dados;
                         
-                        // Executa Gestão de Ciclo e Bloqueio
-                        gerenciarCicloDAPfy(dadosDoc);
+                        // MONITORAMENTO DE CICLO (SÓ AVISO)
+                        verificarCiclo(dados);
 
-                        atualizarInterfaceLoja();
+                        document.getElementById('displayLoja').innerText = logado.nome;
+                        document.getElementById('editNomeLoja').value = logado.nome;
                         document.getElementById('auth-section').style.display = 'none';
                         startSync();
                     } else { logout(); }
@@ -240,94 +224,44 @@
         });
     }
 
-    // --- FUNÇÃO DE GESTÃO DE CICLO (30 DIAS) ---
-    function gerenciarCicloDAPfy(usuario) {
-        if (!usuario.dataCadastro) return;
-        
-        const hoje = new Date();
-        const dataInic = new Date(usuario.dataCadastro);
-        const diff = hoje - dataInic;
-        const diasPassados = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const diasRestantes = Math.max(0, 30 - diasPassados);
+    function verificarCiclo(u) {
+        if(!u.dataCadastro) return;
+        const diff = new Date() - new Date(u.dataCadastro);
+        const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const restam = Math.max(0, 30 - dias);
 
-        const modalBloqueio = document.getElementById('bloqueioLicenca');
-        const boxAviso = document.getElementById('avisoVencimento');
-        const txtDiasAviso = document.getElementById('diasAviso');
-        const linkAvisoZap = document.getElementById('linkAvisoZap');
-        const btnWhatsBloqueio = document.getElementById('btnWhatsRenovacao');
+        const zap = "5599999999999"; // <-- Seu Zap Master
+        const msg = encodeURIComponent(`Olá Diego, quero renovar minha licença DAPfy!\nLoja: ${u.nome}\nEmail: ${u.email}`);
+        const link = `https://wa.me/${zap}?text=${msg}`;
 
-        const seuZap = "5599999999999"; // <-- Seu WhatsApp Master
-        const msg = `Olá Diego! Quero renovar minha licença DAPfy.\n*Loja:* ${usuario.nome}\n*E-mail:* ${usuario.email}`;
-        const linkFull = `https://wa.me/${seuZap}?text=${encodeURIComponent(msg)}`;
-
-        // Bloqueio Total
-        if (diasRestantes <= 0) {
-            boxAviso.style.display = "none";
-            modalBloqueio.style.display = "flex";
-            document.body.style.overflow = "hidden";
-            btnWhatsBloqueio.href = linkFull;
-        } 
-        // Aviso Prévio (3 dias)
-        else if (diasRestantes <= 3) {
-            boxAviso.style.display = "block";
-            txtDiasAviso.innerText = diasRestantes;
-            linkAvisoZap.href = linkFull;
+        if (restam <= 3) {
+            document.getElementById('avisoVencimento').style.display = "block";
+            document.getElementById('linkAvisoZap').href = link;
+            if (restam === 0) {
+                document.getElementById('txtAviso').innerHTML = `<b class="text-danger">Licença Expirada!</b>`;
+            } else {
+                document.getElementById('diasAviso').innerText = restam;
+            }
         } else {
-            boxAviso.style.display = "none";
-            modalBloqueio.style.display = "none";
-            document.body.style.overflow = "auto";
+            document.getElementById('avisoVencimento').style.display = "none";
         }
     }
 
-    // --- RESTANTE DO CÓDIGO ORIGINAL ---
-    function atualizarInterfaceLoja() {
-        document.getElementById('displayLoja').innerText = logado.nome;
-        document.getElementById('editNomeLoja').value = logado.nome;
-    }
-
-    window.esqueciSenha = async () => {
-        const email = document.getElementById('loginEmail').value;
-        if(!email) return alert("Digite seu e-mail.");
-        try { await sendPasswordResetEmail(auth, email); alert("E-mail enviado!"); } catch (e) { alert("Erro."); }
-    };
-
-    window.salvarNovoNome = async () => {
-        const novoNome = document.getElementById('editNomeLoja').value;
-        if(!novoNome) return alert("Digite um nome.");
-        try { await updateDoc(doc(db, "usuarios", docIdUsuario), { nome: novoNome }); logado.nome = novoNome; atualizarInterfaceLoja(); alert("Nome atualizado!"); } catch (e) { alert("Erro."); }
-    };
-
-    window.nav = (pageId) => {
-        document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
-        const target = document.getElementById('page-' + pageId);
-        if(target) target.classList.add('active');
-    };
-
-    window.showAuth = (screen) => {
-        document.getElementById('login-box').style.display = screen === 'login' ? 'block' : 'none';
-        document.getElementById('reg-box').style.display = screen === 'reg' ? 'block' : 'none';
-    };
-
-    window.togglePass = (id) => {
-        const input = document.getElementById(id);
-        input.type = input.type === 'password' ? 'text' : 'password';
+    window.login = async () => {
+        const e = document.getElementById('loginEmail').value;
+        const s = document.getElementById('loginSenha').value;
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("Erro ao entrar."); }
     };
 
     window.cadastrar = async () => {
-        const nome = document.getElementById('regNome').value;
-        const email = document.getElementById('regEmail').value;
-        const senha = document.getElementById('regSenha').value;
-        try { 
-            const userCred = await createUserWithEmailAndPassword(auth, email, senha); 
-            await addDoc(collection(db, "usuarios"), { uid: userCred.user.uid, nome, email, status: 'ativo', dataCadastro: new Date().toISOString() }); 
-        } catch (e) { alert("Erro no cadastro."); }
-    };
-
-    window.login = async () => {
-        const email = document.getElementById('loginEmail').value;
-        const senha = document.getElementById('loginSenha').value;
-        try { await signInWithEmailAndPassword(auth, email, senha); } catch (e) { alert("Acesso negado."); }
+        const n = document.getElementById('regNome').value;
+        const e = document.getElementById('regEmail').value;
+        const s = document.getElementById('regSenha').value;
+        if(s.length < 6) return alert("Senha curta.");
+        try {
+            const res = await createUserWithEmailAndPassword(auth, e, s);
+            await addDoc(collection(db, "usuarios"), { uid: res.user.uid, nome: n, email: e, status: 'ativo', dataCadastro: new Date().toISOString() });
+        } catch(err) { alert("Erro ao criar conta."); }
     };
 
     window.logout = () => signOut(auth).then(() => location.reload());
@@ -335,54 +269,68 @@
     function startSync() {
         const q = query(collection(db, "transacoes"), where("loja", "==", logado.email));
         onSnapshot(q, (snapshot) => {
-            transacoesCache = snapshot.docs.map(doc => doc.data()).sort((a, b) => new Date(b.data) - new Date(a.data));
+            transacoesCache = snapshot.docs.map(doc => doc.data());
             render();
         });
+        carregarMinhasOfertas();
     }
 
     window.registrarTransacao = async (tipo, valorManual = null) => {
         const cpf = (tipo === 'venda' ? document.getElementById('vendaCpf').value : document.getElementById('buscaCpf').value);
         const valor = valorManual || parseFloat(document.getElementById('vendaValor').value);
         const pct = parseFloat(document.getElementById('vendaPct').value) || 0;
-        try { await addDoc(collection(db, "transacoes"), { loja: logado.email, cpf, valor: tipo === 'venda' ? valor : 0, pct: tipo === 'venda' ? pct : 0, cashback: tipo === 'venda' ? (valor * (pct/100)) : 0, debito: tipo === 'resgate' ? valor : 0, tipo, data: new Date().toISOString() }); alert("Sucesso!"); } catch(e) { alert("Erro."); }
+        if(!cpf || !valor) return alert("Preencha tudo.");
+        try {
+            await addDoc(collection(db, "transacoes"), {
+                loja: logado.email, cpf, valor: tipo==='venda'?valor:0, pct,
+                cashback: tipo==='venda'?(valor*(pct/100)):0, debito: tipo==='resgate'?valor:0,
+                tipo, data: new Date().toISOString()
+            });
+            alert("Sucesso!");
+            if(tipo==='resgate') document.getElementById('boxResultado').style.display='none';
+        } catch(e) { alert("Erro."); }
     };
 
     window.buscarSaldo = () => {
         const cpf = document.getElementById('buscaCpf').value;
-        const minhas = transacoesCache.filter(t => t.cpf === cpf);
-        const saldo = minhas.reduce((a, b) => a + (b.cashback || 0), 0) - minhas.reduce((a, b) => a + (b.debito || 0), 0);
+        const t = transacoesCache.filter(x => x.cpf === cpf);
+        const saldo = t.reduce((a,b) => a + (b.cashback||0), 0) - t.reduce((a,b) => a + (b.debito||0), 0);
         document.getElementById('valorSaldo').innerText = `R$ ${saldo.toFixed(2)}`;
         document.getElementById('boxResultado').style.display = 'block';
         window.tempSaldo = saldo;
     };
 
-    window.efetuarResgateIntegral = () => { if(window.tempSaldo > 0.01) { if(confirm("Confirmar resgate?")) registrarTransacao('resgate', window.tempSaldo); } };
+    window.efetuarResgateIntegral = () => { if(window.tempSaldo > 0) registrarTransacao('resgate', window.tempSaldo); };
 
     window.publicarOferta = async () => {
-        const titulo = document.getElementById('ofertaTitulo').value;
-        const descricao = document.getElementById('ofertaDesc').value;
-        try { await addDoc(collection(db, "ofertas"), { lojaEmail: logado.email, titulo, descricao, data: new Date().toISOString() }); alert("Oferta publicada!"); carregarMinhasOfertas(); } catch(e) { alert("Erro."); }
+        const t = document.getElementById('ofertaTitulo').value;
+        const d = document.getElementById('ofertaDesc').value;
+        await addDoc(collection(db, "ofertas"), { lojaEmail: logado.email, titulo: t, descricao: d, data: new Date().toISOString() });
+        alert("Publicado!"); carregarMinhasOfertas();
     };
 
     async function carregarMinhasOfertas() {
         const q = query(collection(db, "ofertas"), where("lojaEmail", "==", logado.email));
-        const snap = await getDocs(q);
-        const div = document.getElementById('minhasOfertas');
-        div.innerHTML = (snap.empty ? '<p class="text-muted small">Nenhuma oferta ativa.</p>' : snap.docs.map(docSnap => { const o = docSnap.data(); return `<div class="card-custom p-3 mb-2" style="background: #f1f5f9; border:none"><div class="d-flex justify-content-between"><div><div class="fw-bold small text-primary">${o.titulo}</div><div class="small text-muted">${o.descricao}</div></div><button onclick="removerOferta('${docSnap.id}')" class="btn btn-sm text-danger"><i class="bi bi-trash"></i></button></div></div>`; }).join(''));
+        const s = await getDocs(q);
+        document.getElementById('minhasOfertas').innerHTML = s.docs.map(d => `<div class="card-custom p-3 small mb-2 d-flex justify-content-between"><div><b>${d.data().titulo}</b></div><button onclick="removerOferta('${d.id}')" class="btn text-danger p-0"><i class="bi bi-trash"></i></button></div>`).join('');
     }
 
-    window.removerOferta = async (id) => { if(confirm("Remover?")) { await deleteDoc(doc(db, "ofertas", id)); carregarMinhasOfertas(); } };
+    window.removerOferta = async (id) => { await deleteDoc(doc(db, "ofertas", id)); carregarMinhasOfertas(); };
+
+    window.nav = (p) => {
+        document.querySelectorAll('.app-page').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.nav-item-btn').forEach(x => x.classList.remove('active'));
+        document.getElementById('page-'+p).classList.add('active');
+        event.currentTarget.classList.add('active');
+    };
 
     function render() {
         const totalV = transacoesCache.filter(t => t.tipo === 'venda').reduce((a, b) => a + (b.valor || 0), 0);
         const totalC = transacoesCache.reduce((a, b) => a + (b.cashback || 0), 0) - transacoesCache.reduce((a, b) => a + (b.debito || 0), 0);
-        document.getElementById('dashVendas').innerText = `R$ ${totalV.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-        document.getElementById('dashCash').innerText = `R$ ${totalC.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-        const cpfsUnicos = [...new Set(transacoesCache.map(t => t.cpf))];
-        const cpfsComSaldo = cpfsUnicos.filter(cpf => { const tCpf = transacoesCache.filter(t => t.cpf === cpf); return (tCpf.reduce((a, b) => a + (b.cashback || 0), 0) - tCpf.reduce((a, b) => a + (b.debito || 0), 0)) > 0.01; });
-        document.getElementById('dashClientes').innerText = cpfsComSaldo.length;
-        const histDiv = document.getElementById('listaTransacoes');
-        histDiv.innerHTML = transacoesCache.length === 0 ? '<div class="text-center p-4 text-muted small">Sem transações.</div>' : transacoesCache.map(t => `<div class="card-custom p-3 mb-2"><div class="d-flex justify-content-between"><div><small class="text-muted">${new Date(t.data).toLocaleDateString()}</small><b class="d-block small">${t.cpf}</b></div><div class="text-end"><span class="badge ${t.tipo==='venda'?'bg-primary':'bg-warning text-dark'}" style="font-size:0.6rem">${t.tipo.toUpperCase()}</span><div class="${t.tipo==='venda'?'text-success':'text-danger'} fw-bold">R$ ${(t.cashback || t.debito).toFixed(2)}</div></div></div></div>`).join('');
+        document.getElementById('dashVendas').innerText = `R$ ${totalV.toFixed(2)}`;
+        document.getElementById('dashCash').innerText = `R$ ${totalC.toFixed(2)}`;
+        document.getElementById('dashClientes').innerText = [...new Set(transacoesCache.map(t => t.cpf))].length;
+        document.getElementById('listaTransacoes').innerHTML = transacoesCache.map(t => `<div class="card-custom p-3 mb-2 small d-flex justify-content-between"><div>${t.cpf}<br><small>${new Date(t.data).toLocaleDateString()}</small></div><b>R$ ${(t.cashback || t.debito).toFixed(2)}</b></div>`).join('');
     }
 </script>
 </body>
