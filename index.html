@@ -38,7 +38,7 @@
         .auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .card-auth { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 35px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        /* AVISO DE RENOVAÇÃO (SEM BLOQUEIO) */
+        /* AVISO DE RENOVAÇÃO */
         #avisoVencimento { position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #fff3cd; border: 1px solid #ffeeba; padding: 12px 16px; border-radius: 14px; z-index: 1500; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.08); animation: slideDown 0.4s ease; }
         @keyframes slideDown { from { top: 20px; opacity: 0; } to { top: 75px; opacity: 1; } }
     </style>
@@ -201,17 +201,27 @@
         }, 3000); 
     });
 
+    // --- CORREÇÃO: VERIFICAÇÃO DE STATUS EM TEMPO REAL ---
     function checkAuthState() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const q = query(collection(db, "usuarios"), where("email", "==", user.email));
+                
+                // onSnapshot garante que o bloqueio seja imediato quando alterado no Master
                 onSnapshot(q, (snap) => {
                     if(!snap.empty) {
                         const dados = snap.docs[0].data();
+                        
+                        // SE O STATUS FOR PENDENTE, DESLOGA NA HORA
+                        if (dados.status === 'pendente') {
+                            alert("Sua licença foi suspensa ou bloqueada. Entre em contato com o suporte.");
+                            logout();
+                            return;
+                        }
+
                         docIdUsuario = snap.docs[0].id;
                         logado = dados;
                         
-                        // MONITORAMENTO DE CICLO (SÓ AVISO)
                         verificarCiclo(dados);
 
                         document.getElementById('displayLoja').innerText = logado.nome;
@@ -230,7 +240,7 @@
         const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
         const restam = Math.max(0, 30 - dias);
 
-        const zap = "5599999999999"; // <-- Seu Zap Master
+        const zap = "5599999999999"; 
         const msg = encodeURIComponent(`Olá Diego, quero renovar minha licença DAPfy!\nLoja: ${u.nome}\nEmail: ${u.email}`);
         const link = `https://wa.me/${zap}?text=${msg}`;
 
@@ -250,7 +260,7 @@
     window.login = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginSenha').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("Erro ao entrar."); }
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("Erro ao entrar. Verifique suas credenciais."); }
     };
 
     window.cadastrar = async () => {
@@ -321,7 +331,7 @@
         document.querySelectorAll('.app-page').forEach(x => x.classList.remove('active'));
         document.querySelectorAll('.nav-item-btn').forEach(x => x.classList.remove('active'));
         document.getElementById('page-'+p).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if(event) event.currentTarget.classList.add('active');
     };
 
     function render() {
