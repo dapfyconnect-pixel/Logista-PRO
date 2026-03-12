@@ -13,17 +13,20 @@
         :root { --brand: #4f46e5; --bg: #f8fafc; --nav-bg: #ffffff; --text: #1e293b; --danger: #ef4444; --mp-blue: #009ee3; --whatsapp: #25d366; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 90px; padding-top: 75px; margin: 0; }
         
+        /* Splash Screen */
         .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s; }
         .splash-screen.fade-out { opacity: 0; visibility: hidden; }
         .splash-logo { max-width: 120px; height: auto; margin-bottom: 20px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
         
+        /* Layout Fixos */
         .app-header { position: fixed; top: 0; width: 100%; background: #fff; z-index: 1000; border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
         .nav-item-btn { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: 600; width: 20%; transition: 0.2s; }
         .nav-item-btn i { font-size: 1.3rem; margin-bottom: 2px; }
         .nav-item-btn.active { color: var(--brand); }
 
+        /* Estilos de Componentes */
         .app-page { display: none; animation: fadeIn 0.3s ease; }
         .app-page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -31,10 +34,12 @@
         .btn-brand { background: var(--brand); color: white; border-radius: 14px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
         .form-control { border-radius: 12px; padding: 12px; border: 1px solid #cbd5e1; }
 
+        /* Telas de Auth */
         .auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .card-auth { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 35px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        .btn-activate-now { background: var(--mp-blue); color: white; border-radius: 14px; padding: 14px; font-weight: 800; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: 0.3s; margin-bottom: 10px; }
+        /* Botões de Pagamento */
+        .btn-activate-now { background: var(--mp-blue); color: white; border-radius: 14px; padding: 14px; font-weight: 800; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: 0.3s; margin-bottom: 10px; cursor: pointer; }
         .btn-whatsapp-support { background: var(--whatsapp); color: white; border-radius: 14px; padding: 12px; font-weight: 700; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 0.85rem; }
 
         #avisoVencimento { position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #fff3cd; border: 1px solid #ffeeba; padding: 12px 16px; border-radius: 14px; z-index: 1500; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
@@ -49,7 +54,7 @@
                 <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
                 <span id="txtAviso">Vence em <b id="diasAviso">--</b> dias.</span>
             </div>
-            <a href="https://mpago.la/1ZKPCJF" target="_blank" class="btn btn-sm btn-dark rounded-pill fw-bold" style="font-size: 0.65rem;">Ativar</a>
+            <button onclick="abrirPagamentoDAPfy()" class="btn btn-sm btn-dark rounded-pill fw-bold" style="font-size: 0.65rem;">Ativar</button>
         </div>
         <a id="btnZapAviso" href="#" target="_blank" class="btn btn-sm btn-success rounded-pill fw-bold text-center" style="font-size: 0.65rem; display: none;">
             <i class="bi bi-whatsapp me-1"></i> Enviar Comprovante
@@ -81,7 +86,6 @@
             <p class="text-center small">Novo aqui? <span class="text-primary fw-bold" style="cursor:pointer" onclick="showAuth('reg')">Criar Conta</span></p>
         </div>
     </div>
-
     <div id="reg-box" class="card-auth" style="display:none">
         <h4 class="fw-bold mb-4">Nova Loja</h4>
         <input type="text" id="regNome" class="form-control mb-2" placeholder="Nome da Empresa">
@@ -143,21 +147,6 @@
         </div>
     </div>
 
-    <div id="page-ofertas" class="app-page">
-        <h5 class="fw-bold mb-3">Mural de Ofertas</h5>
-        <div class="card-custom">
-            <input type="text" id="ofertaTitulo" class="form-control mb-2" placeholder="Título">
-            <textarea id="ofertaDesc" class="form-control mb-3" rows="3" placeholder="Descrição"></textarea>
-            <button onclick="publicarOferta()" class="btn-brand bg-primary">Publicar</button>
-        </div>
-        <div id="minhasOfertas" class="mt-4"></div>
-    </div>
-
-    <div id="page-hist" class="app-page">
-        <h5 class="fw-bold mb-3">Extrato Geral</h5>
-        <div id="listaTransacoes"></div>
-    </div>
-
     <div id="page-config" class="app-page">
         <h5 class="fw-bold mb-3">Configurações</h5>
         <div class="card-custom mb-3">
@@ -168,9 +157,9 @@
         <div class="card-custom">
             <label class="small fw-bold text-muted mb-2">LICENÇA DAPFY</label>
             <p class="small text-muted mb-3">Mantenha sua conta ativa para não perder o acesso ao Cloud.</p>
-            <a href="https://mpago.la/1ZKPCJF" target="_blank" class="btn-activate-now shadow-sm">
-                <i class="bi bi-patch-check-fill"></i> Renovar Licença (Teste R$ 1)
-            </a>
+            <button onclick="abrirPagamentoDAPfy()" class="btn-activate-now shadow-sm">
+                <i class="bi bi-patch-check-fill"></i> Renovar Licença (R$ 1 Teste)
+            </button>
             <a id="btnZapConfig" href="#" target="_blank" class="btn-whatsapp-support">
                 <i class="bi bi-whatsapp"></i> Enviar Comprovante
             </a>
@@ -182,13 +171,12 @@
     <button class="nav-item-btn active" onclick="nav('home')"><i class="bi bi-graph-up-arrow"></i><span>Painel</span></button>
     <button class="nav-item-btn" onclick="nav('venda')"><i class="bi bi-plus-circle-fill"></i><span>Venda</span></button>
     <button class="nav-item-btn" onclick="nav('resgate')"><i class="bi bi-wallet2"></i><span>Resgate</span></button>
-    <button class="nav-item-btn" onclick="nav('ofertas')"><i class="bi bi-megaphone"></i><span>Mural</span></button>
-    <button class="nav-item-btn" onclick="nav('hist')"><i class="bi bi-list-check"></i><span>Extrato</span></button>
+    <button class="nav-item-btn" onclick="nav('config')"><i class="bi bi-gear"></i><span>Ajustes</span></button>
 </nav>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -216,6 +204,15 @@
         }, 3000); 
     });
 
+    // FUNÇÃO PRINCIPAL: Gera o link dinâmico para ativação automática
+    window.abrirPagamentoDAPfy = () => {
+        if (!logado || !logado.email) return alert("Erro: E-mail não identificado.");
+        const linkBase = "https://mpago.la/1ZKPCJF";
+        // Enviamos o email como external_reference para a Function capturar
+        const linkDinamico = `${linkBase}?external_reference=${encodeURIComponent(logado.email)}`;
+        window.open(linkDinamico, '_blank');
+    };
+
     function checkAuthState() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -223,19 +220,20 @@
                 onSnapshot(q, (snap) => {
                     if(!snap.empty) {
                         const dados = snap.docs[0].data();
-                        const msgWhats = encodeURIComponent(`Olá Suporte DAPfy! Gostaria de enviar o comprovante de renovação da minha loja.\n\nLoja: ${dados.nome}\nE-mail: ${dados.email}`);
+                        const msgWhats = encodeURIComponent(`Olá Suporte DAPfy! Gostaria de enviar o comprovante de renovação.\n\nLoja: ${dados.nome}\nE-mail: ${dados.email}`);
                         
                         if (dados.status === 'pendente') {
-                            const authBox = document.getElementById('auth-content');
-                            authBox.innerHTML = `
+                            document.getElementById('auth-section').style.display = 'flex';
+                            document.getElementById('login-box').innerHTML = `
                                 <div class="text-center">
                                     <i class="bi bi-exclamation-octagon-fill text-danger fs-1 mb-3"></i>
                                     <h4 class="fw-bold">Acesso Suspenso</h4>
-                                    <p class="text-muted small">Sua licença expirou. Ative abaixo para liberar o painel.</p>
-                                    <a href="https://mpago.la/1ZKPCJF" target="_blank" class="btn-activate-now shadow-sm mt-3"><i class="bi bi-patch-check-fill"></i> Ativar Licença Agora</a>
+                                    <p class="text-muted small">Sua licença expirou. Ative abaixo para liberar.</p>
+                                    <button onclick="abrirPagamentoDAPfy()" class="btn-activate-now shadow-sm mt-3"><i class="bi bi-patch-check-fill"></i> Ativar Licença Agora</button>
                                     <a href="https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}" target="_blank" class="btn-whatsapp-support"><i class="bi bi-whatsapp"></i> Enviar Comprovante</a>
+                                    <p class="mt-4 small text-primary" style="cursor:pointer" onclick="logout()">Sair da conta</p>
                                 </div>`;
-                            signOut(auth); return;
+                            return;
                         }
                         docIdUsuario = snap.docs[0].id;
                         logado = dados;
@@ -244,38 +242,26 @@
                         document.getElementById('editNomeLoja').value = logado.nome;
                         document.getElementById('auth-section').style.display = 'none';
                         startSync();
-                    } else { logout(); }
+                    }
                 });
             } else { document.getElementById('auth-section').style.display = 'flex'; }
         });
     }
 
-    window.esqueciSenha = async () => {
-        const email = document.getElementById('loginEmail').value;
-        if (!email) return alert("Por favor, digite seu e-mail no campo acima primeiro.");
-        try {
-            await sendPasswordResetEmail(auth, email);
-            alert("E-mail de redefinição enviado! Verifique sua caixa de entrada.");
-        } catch (error) {
-            alert("Erro ao enviar e-mail. Verifique se o endereço está correto.");
-        }
-    };
-
     window.login = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginSenha').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("Erro ao entrar. Verifique suas credenciais."); }
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("Erro ao entrar."); }
     };
 
     window.cadastrar = async () => {
         const n = document.getElementById('regNome').value;
         const e = document.getElementById('regEmail').value;
         const s = document.getElementById('regSenha').value;
-        if(s.length < 6) return alert("Senha curta.");
         try {
             const res = await createUserWithEmailAndPassword(auth, e, s);
             await addDoc(collection(db, "usuarios"), { uid: res.user.uid, nome: n, email: e, status: 'ativo', dataCadastro: new Date().toISOString() });
-        } catch(err) { alert("Erro ao criar conta."); }
+        } catch(err) { alert("Erro ao cadastrar."); }
     };
 
     window.logout = () => signOut(auth).then(() => location.reload());
@@ -286,64 +272,14 @@
             transacoesCache = snapshot.docs.map(doc => doc.data());
             render();
         });
-        carregarMinhasOfertas();
     }
-
-    window.registrarTransacao = async (tipo, valorManual = null) => {
-        const cpf = (tipo === 'venda' ? document.getElementById('vendaCpf').value : document.getElementById('buscaCpf').value);
-        const valor = valorManual || parseFloat(document.getElementById('vendaValor').value);
-        const pct = parseFloat(document.getElementById('vendaPct').value) || 0;
-        if(!cpf || !valor) return alert("Preencha tudo.");
-        try {
-            await addDoc(collection(db, "transacoes"), {
-                loja: logado.email, cpf, valor: tipo==='venda'?valor:0, pct,
-                cashback: tipo==='venda'?(valor*(pct/100)):0, debito: tipo==='resgate'?valor:0,
-                tipo, data: new Date().toISOString()
-            });
-            alert("Sucesso!");
-            if(tipo==='resgate') document.getElementById('boxResultado').style.display='none';
-        } catch(e) { alert("Erro."); }
-    };
-
-    window.buscarSaldo = () => {
-        const cpf = document.getElementById('buscaCpf').value;
-        const t = transacoesCache.filter(x => x.cpf === cpf);
-        const saldo = t.reduce((a,b) => a + (b.cashback||0), 0) - t.reduce((a,b) => a + (b.debito||0), 0);
-        document.getElementById('valorSaldo').innerText = `R$ ${saldo.toFixed(2)}`;
-        document.getElementById('boxResultado').style.display = 'block';
-        window.tempSaldo = saldo;
-    };
-
-    window.efetuarResgateIntegral = () => { if(window.tempSaldo > 0) registrarTransacao('resgate', window.tempSaldo); };
-
-    window.publicarOferta = async () => {
-        const t = document.getElementById('ofertaTitulo').value;
-        const d = document.getElementById('ofertaDesc').value;
-        await addDoc(collection(db, "ofertas"), { lojaEmail: logado.email, titulo: t, descricao: d, data: new Date().toISOString() });
-        alert("Publicado!"); carregarMinhasOfertas();
-    };
-
-    async function carregarMinhasOfertas() {
-        const q = query(collection(db, "ofertas"), where("lojaEmail", "==", logado.email));
-        const s = await getDocs(q);
-        document.getElementById('minhasOfertas').innerHTML = s.docs.map(d => `<div class="card-custom p-3 small mb-2 d-flex justify-content-between"><div><b>${d.data().titulo}</b></div><button onclick="removerOferta('${d.id}')" class="btn text-danger p-0"><i class="bi bi-trash"></i></button></div>`).join('');
-    }
-
-    window.removerOferta = async (id) => { await deleteDoc(doc(db, "ofertas", id)); carregarMinhasOfertas(); };
-
-    window.nav = (p) => {
-        document.querySelectorAll('.app-page').forEach(x => x.classList.remove('active'));
-        document.querySelectorAll('.nav-item-btn').forEach(x => x.classList.remove('active'));
-        document.getElementById('page-'+p).classList.add('active');
-        if(window.event) window.event.currentTarget.classList.add('active');
-    };
 
     function verificarCiclo(u) {
         if(!u.dataCadastro) return;
         const diff = new Date() - new Date(u.dataCadastro);
         const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
         const restam = Math.max(0, 30 - dias);
-        const msgWhats = encodeURIComponent(`Olá Suporte DAPfy! Gostaria de enviar o comprovante de renovação da minha loja.\n\nLoja: ${u.nome}\nE-mail: ${u.email}`);
+        const msgWhats = encodeURIComponent(`Olá! Quero enviar meu comprovante.\n\nLoja: ${u.nome}`);
         
         document.getElementById('btnZapConfig').href = `https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}`;
         document.getElementById('btnZapAviso').href = `https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}`;
@@ -351,23 +287,19 @@
         if (restam <= 3) {
             document.getElementById('avisoVencimento').style.display = "block";
             document.getElementById('btnZapAviso').style.display = "block";
-            if (restam === 0) document.getElementById('txtAviso').innerHTML = `<b class="text-danger">Licença Expirada!</b>`;
-            else document.getElementById('diasAviso').innerText = restam;
-        } else { document.getElementById('avisoVencimento').style.display = "none"; }
+            document.getElementById('diasAviso').innerText = restam;
+        }
     }
 
     function render() {
         const totalV = transacoesCache.filter(t => t.tipo === 'venda').reduce((a, b) => a + (b.valor || 0), 0);
-        const totalC = transacoesCache.reduce((a, b) => a + (b.cashback || 0), 0) - transacoesCache.reduce((a, b) => a + (b.debito || 0), 0);
         document.getElementById('dashVendas').innerText = `R$ ${totalV.toFixed(2)}`;
-        document.getElementById('dashCash').innerText = `R$ ${totalC.toFixed(2)}`;
         document.getElementById('dashClientes').innerText = [...new Set(transacoesCache.map(t => t.cpf))].length;
-        document.getElementById('listaTransacoes').innerHTML = transacoesCache.slice().reverse().map(t => `<div class="card-custom p-3 mb-2 small d-flex justify-content-between"><div>${t.cpf}<br><small>${new Date(t.data).toLocaleDateString()}</small></div><b class="${t.tipo==='resgate'?'text-danger':''}">${t.tipo==='resgate'?'-':''}R$ ${(t.cashback || t.debito).toFixed(2)}</b></div>`).join('');
     }
 
-    window.showAuth = (b) => {
-        document.getElementById('login-box').style.display = b==='login'?'block':'none';
-        document.getElementById('reg-box').style.display = b==='reg'?'block':'none';
+    window.nav = (p) => {
+        document.querySelectorAll('.app-page').forEach(x => x.classList.remove('active'));
+        document.getElementById('page-'+p).classList.add('active');
     };
 
     window.togglePass = (id) => {
@@ -377,9 +309,8 @@
 
     window.salvarNovoNome = async () => {
         const n = document.getElementById('editNomeLoja').value;
-        if(!n || !docIdUsuario) return;
-        await updateDoc(doc(db, "usuarios", docIdUsuario), { nome: n });
-        alert("Nome atualizado!");
+        if(docIdUsuario) await updateDoc(doc(db, "usuarios", docIdUsuario), { nome: n });
+        alert("Atualizado!");
     };
 </script>
 </body>
