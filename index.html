@@ -20,23 +20,94 @@
             --radius: 24px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        /* Reset e Base */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
-        .app-card { background: var(--card-bg); width: 100%; height: 100%; max-width: 450px; position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        @media (min-width: 768px) { .app-card { height: 90vh; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); } }
+        /* Container Principal Responsivo */
+        .app-card { 
+            background: var(--card-bg); 
+            width: 100%; 
+            height: 100%; 
+            max-width: 450px; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
 
-        header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); z-index: 10; }
+        @media (min-width: 768px) { 
+            .app-card { height: 90vh; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); } 
+        }
+
+        /* Header Fixado */
+        header { 
+            padding: 15px 20px; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(30, 41, 59, 0.95); 
+            backdrop-filter: blur(10px); 
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
         .btn-sair { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
 
-        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; scrollbar-width: none; }
+        /* Área de Conteúdo com Scroll */
+        .content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            padding-bottom: 110px; /* Espaço para o menu inferior não cobrir o conteúdo */
+            scrollbar-width: none; 
+        }
         .content::-webkit-scrollbar { display: none; }
 
+        /* Menu Inferior Quadrado e Responsivo */
+        .nav-bar { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0;
+            width: 100%; 
+            height: 85px; 
+            background: #1e293b; 
+            border-top: 1px solid var(--border); 
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 colunas iguais */
+            padding: 10px;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .nav-item { 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim); 
+            cursor: pointer; 
+            font-size: 0.65rem; 
+            font-weight: 600;
+            border-radius: 12px; /* Deixa o "quadrado" levemente arredondado */
+            transition: all 0.2s ease;
+        }
+
+        .nav-item i { font-size: 1.3rem; margin-bottom: 5px; }
+
+        /* Estado Ativo do Menu */
+        .nav-item.active { 
+            color: var(--primary); 
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: inset 0 0 0 1px var(--primary-glow);
+        }
+
+        /* Formulários e Inputs */
         .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: rgba(15, 23, 42, 0.5); padding: 5px; border-radius: 15px; }
         .auth-tab-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--text-dim); cursor: pointer; font-weight: 700; border-radius: 10px; }
         .auth-tab-btn.active { background: var(--primary); color: #000; }
 
-        /* Olho dentro do campo senha */
         .pass-container { position: relative; width: 100%; }
         .pass-container input { padding-right: 45px; }
         .toggle-pass { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-dim); cursor: pointer; z-index: 5; }
@@ -47,17 +118,13 @@
         
         .btn-main { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 15px; font-weight: 700; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
+        /* Cards e Avatares */
         .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .avatar-option { aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; cursor: pointer; background: #334155; display: flex; align-items: center; justify-content: center; color: var(--text-dim); }
+        .avatar-option { aspect-ratio: 1; border-radius: 12px; border: 2px solid transparent; cursor: pointer; background: #334155; display: flex; align-items: center; justify-content: center; color: var(--text-dim); }
         .avatar-option.selected { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
 
         .card-glass { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
-        .nav-bar { position: absolute; bottom: 0; width: 100%; height: 85px; background: rgba(30, 41, 59, 0.98); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; }
-        .nav-item { color: var(--text-dim); text-align: center; cursor: pointer; font-size: 0.6rem; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 4px; }
-        
-        .header-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; border: 1px solid var(--primary); }
+        .header-avatar { width: 38px; height: 38px; border-radius: 10px; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; border: 1px solid var(--primary); }
         .hidden { display: none !important; }
         .success-text { color: var(--primary); font-weight: bold; }
         .danger-text { color: var(--danger); font-weight: bold; }
@@ -180,6 +247,7 @@
 </div>
 
 <script type="module">
+    // --- SUA LÓGICA DE FIREBASE (MANTIDA 100%) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -200,7 +268,6 @@
     let currentAuthMode = 'login';
     let lojistaData = null;
 
-    // AUTH LOGIC
     window.fAuth = async () => {
         const e = document.getElementById('auth-email').value;
         const p = document.getElementById('auth-pass').value;
@@ -240,7 +307,6 @@
 
     window.fLogout = () => confirm("Sair do DAPfy Connect?") && signOut(auth);
 
-    // CORE LOGIC
     window.buscarCliente = () => {
         const cpf = document.getElementById('cpf-busca').value;
         if(cpf.length < 11) return alert("CPF Incompleto");
@@ -309,7 +375,6 @@
         toggleConfig();
     };
 
-    // UI UI HELPERS
     window.renderMural = () => {
         document.getElementById('feed-ofertas').innerHTML = lojistaData.ofertas.map(o => `
             <div class="card-glass">
