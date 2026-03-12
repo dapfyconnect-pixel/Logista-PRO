@@ -16,6 +16,7 @@
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --danger: #ff4757;
+            --warning: #f1c40f;
             --border: rgba(255, 255, 255, 0.08);
             --radius: 24px;
         }
@@ -40,6 +41,21 @@
             .app-card { height: 90vh; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); } 
         }
 
+        /* Banner de Alerta de Pagamento */
+        #banner-pagamento {
+            background: var(--danger);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .btn-pay-now { background: white; color: black; border: none; padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; text-decoration: none; display: inline-block; font-weight: 800; }
+
         /* Header Fixado */
         header { 
             padding: 15px 20px; 
@@ -54,6 +70,9 @@
         }
 
         .btn-sair { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+
+        /* Contador Regressivo no Topo */
+        .trial-badge { background: var(--primary-glow); border: 1px solid var(--primary); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; }
 
         /* Área de Conteúdo com Scroll */
         .content { 
@@ -137,6 +156,14 @@
 
 <div class="app-card">
     
+    <div id="banner-pagamento">
+        <span>⚠️ Seu acesso vence em breve! Regularize para não perder o serviço.</span>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <a href="https://mpago.la/2LwD3d4" target="_blank" class="btn-pay-now">PAGAR AGORA</a>
+            <button onclick="enviarComprovante()" class="btn-pay-now" style="background: #25d366; color: white;">ENVIAR COMPROVANTE</button>
+        </div>
+    </div>
+
     <div id="modal-config" class="hidden" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.98); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px;">
         <div style="background:var(--card-bg); width:100%; padding:25px; border-radius:var(--radius); border:1px solid var(--border);">
             <h3>Ajustes da Loja</h3>
@@ -163,7 +190,10 @@
     <header id="header-main" class="hidden">
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="header-avatar" id="main-avatar-icon"><i class="fa-solid fa-store"></i></div>
-            <h2 id="display-loja" style="font-size: 0.9rem;">DAPfy Connect</h2>
+            <div>
+                <h2 id="display-loja" style="font-size: 0.9rem;">DAPfy Connect</h2>
+                <div id="contagem-dias" class="trial-badge">Calculando...</div>
+            </div>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <button onclick="toggleConfig()" style="background:none; border:none; color:var(--text-dim); font-size: 1.1rem; cursor:pointer"><i class="fa-solid fa-gear"></i></button>
@@ -280,8 +310,20 @@
             if(currentAuthMode === 'cadastro') {
                 if(!l) return alert("Dê um nome à sua loja");
                 const res = await createUserWithEmailAndPassword(auth, e, p);
+                
+                // DATA DE VENCIMENTO: 30 dias a partir de hoje
+                const dataFim = new Date();
+                dataFim.setDate(dataFim.getDate() + 30);
+                const validadeStr = dataFim.toISOString().split('T')[0];
+
                 await setDoc(doc(db, "lojistas", res.user.uid), {
-                    nomeLoja: l, icone: 'fa-store', registros: [], ofertas: [], status: 'ativo'
+                    nomeLoja: l, 
+                    email: e,
+                    icone: 'fa-store', 
+                    registros: [], 
+                    ofertas: [], 
+                    status: 'ativo',
+                    validadePlano: validadeStr
                 });
             } else {
                 await signInWithEmailAndPassword(auth, e, p);
@@ -295,11 +337,36 @@
                 if(snap.exists()){
                     const data = snap.data();
                     
-                    // --- TRAVA DE BLOQUEIO DO ADMIN ---
                     if(data.status === 'bloqueado') {
-                        alert("⚠️ Sua conta está suspensa. Entre em contato com o suporte.");
+                        alert("⚠️ Conta suspensa.");
                         signOut(auth);
                         return;
+                    }
+
+                    // LÓGICA DE CONTAGEM REGRESSIVA
+                    const hoje = new Date();
+                    const vencimento = new Date(data.validadePlano);
+                    const diffTime = vencimento - hoje;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    const badge = document.getElementById('contagem-dias');
+                    const banner = document.getElementById('banner-pagamento');
+
+                    if(diffDays <= 0) {
+                        alert("🚨 Prazo expirado. Realize o pagamento.");
+                        signOut(auth);
+                        return;
+                    }
+
+                    badge.innerText = `${diffDays} dias restantes`;
+                    
+                    // Alerta faltando 3 dias ou menos
+                    if(diffDays <= 3) {
+                        banner.style.display = 'flex';
+                        badge.style.background = 'var(--danger)';
+                        badge.style.color = 'white';
+                    } else {
+                        banner.style.display = 'none';
                     }
 
                     lojistaData = data;
@@ -313,8 +380,15 @@
         } else {
             document.getElementById('screen-auth').classList.remove('hidden');
             document.querySelectorAll('#header-main, #nav-main, section:not(#screen-auth)').forEach(el => el.classList.add('hidden'));
+            document.getElementById('banner-pagamento').style.display = 'none';
         }
     });
+
+    window.enviarComprovante = () => {
+        const msg = `Olá! Realizei o pagamento do DAPfy Connect.\n\nLoja: ${lojistaData.nomeLoja}\nE-mail: ${auth.currentUser.email}\n\nSegue o comprovante em anexo:`;
+        const link = `https://wa.me/5551984107530?text=${encodeURIComponent(msg)}`;
+        window.open(link, '_blank');
+    };
 
     window.fLogout = () => confirm("Sair do DAPfy Connect?") && signOut(auth);
 
@@ -379,7 +453,6 @@
         document.getElementById('mural-titulo').value = ""; document.getElementById('mural-desc').value = "";
     };
 
-    // --- NOVA FUNÇÃO PARA EXCLUIR PUBLICAÇÃO ---
     window.fExcluirOferta = async (idOferta) => {
         if(confirm("Deseja remover esta oferta do mural?")) {
             const novasOfertas = lojistaData.ofertas.filter(o => o.id !== idOferta);
@@ -390,7 +463,7 @@
     };
 
     window.salvarConfigFirebase = async () => {
-        const n = document.getElementById('config-nome-loja').value || lojistaData.nomeLoja;
+        const n = document.getElementById('config-nome-lo_ja').value || lojistaData.nomeLoja;
         const i = document.querySelector('.avatar-option.selected').dataset.icon;
         await updateDoc(doc(db, "lojistas", auth.currentUser.uid), { nomeLoja: n, icone: i });
         toggleConfig();
