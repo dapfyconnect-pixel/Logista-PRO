@@ -3,287 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DAPfy | Painel Lojista</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>DAPfy Connect | Gestão de Cashback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --brand: #4f46e5; --bg: #f8fafc; --nav-bg: #ffffff; --text: #1e293b; --danger: #ef4444; --mp-blue: #009ee3; --whatsapp: #25d366; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 90px; padding-top: 75px; margin: 0; }
+        :root {
+            --primary: #00ff88;
+            --primary-glow: rgba(0, 255, 136, 0.2);
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --danger: #ff4757;
+            --border: rgba(255, 255, 255, 0.08);
+            --radius: 24px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+
+        .app-card { background: var(--card-bg); width: 100%; height: 100%; max-width: 450px; position: relative; display: flex; flex-direction: column; overflow: hidden; }
+        @media (min-width: 768px) { .app-card { height: 90vh; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); } }
+
+        header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); z-index: 10; }
+        .btn-sair { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+
+        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; scrollbar-width: none; }
+        .content::-webkit-scrollbar { display: none; }
+
+        .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: rgba(15, 23, 42, 0.5); padding: 5px; border-radius: 15px; }
+        .auth-tab-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--text-dim); cursor: pointer; font-weight: 700; border-radius: 10px; }
+        .auth-tab-btn.active { background: var(--primary); color: #000; }
+
+        /* Olho dentro do campo senha */
+        .pass-container { position: relative; width: 100%; }
+        .pass-container input { padding-right: 45px; }
+        .toggle-pass { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-dim); cursor: pointer; z-index: 5; }
+
+        .input-group { margin-bottom: 15px; }
+        label { font-size: 0.65rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; display: block; }
+        input, textarea { width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; border-radius: 12px; color: white; font-size: 0.95rem; outline: none; }
         
-        .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s; }
-        .splash-screen.fade-out { opacity: 0; visibility: hidden; }
-        .splash-logo { max-width: 120px; height: auto; margin-bottom: 20px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 15px; font-weight: 700; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .avatar-option { aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; cursor: pointer; background: #334155; display: flex; align-items: center; justify-content: center; color: var(--text-dim); }
+        .avatar-option.selected { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+
+        .card-glass { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
+        .nav-bar { position: absolute; bottom: 0; width: 100%; height: 85px; background: rgba(30, 41, 59, 0.98); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; }
+        .nav-item { color: var(--text-dim); text-align: center; cursor: pointer; font-size: 0.6rem; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 4px; }
         
-        .app-header { position: fixed; top: 0; width: 100%; background: #fff; z-index: 1000; border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
-        .nav-item-btn { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: 600; width: 25%; transition: 0.2s; }
-        .nav-item-btn i { font-size: 1.3rem; margin-bottom: 2px; }
-        .nav-item-btn.active { color: var(--brand); }
-
-        .app-page { display: none; animation: fadeIn 0.3s ease; }
-        .app-page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .card-custom { background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 15px; }
-        .btn-brand { background: var(--brand); color: white; border-radius: 14px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
-        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #cbd5e1; }
-
-        .auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .card-auth { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 35px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-
-        .btn-activate-now { background: var(--mp-blue); color: white; border-radius: 14px; padding: 14px; font-weight: 800; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: 0.3s; margin-bottom: 10px; cursor: pointer; }
-        .btn-whatsapp-support { background: var(--whatsapp); color: white; border-radius: 14px; padding: 12px; font-weight: 700; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 0.85rem; }
-
-        #avisoVencimento { position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #fff3cd; border: 1px solid #ffeeba; padding: 12px 16px; border-radius: 14px; z-index: 1500; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .header-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; border: 1px solid var(--primary); }
+        .hidden { display: none !important; }
+        .success-text { color: var(--primary); font-weight: bold; }
+        .danger-text { color: var(--danger); font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="avisoVencimento">
-    <div class="d-flex flex-column gap-2">
-        <div class="d-flex align-items-center justify-content-between">
-            <div class="small text-dark">
-                <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
-                <span id="txtAviso">Vence em <b id="diasAviso">--</b> dias.</span>
+<div class="app-card">
+    
+    <div id="modal-config" class="hidden" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.98); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:var(--card-bg); width:100%; padding:25px; border-radius:var(--radius); border:1px solid var(--border);">
+            <h3>Ajustes da Loja</h3>
+            <div class="input-group" style="margin-top:15px"><label>Nome da Empresa</label><input type="text" id="config-nome-loja"></div>
+            <div class="avatar-grid" id="grid-icones">
+                <div class="avatar-option selected" data-icon="fa-store"><i class="fa-solid fa-store"></i></div>
+                <div class="avatar-option" data-icon="fa-scissors"><i class="fa-solid fa-scissors"></i></div>
+                <div class="avatar-option" data-icon="fa-utensils"><i class="fa-solid fa-utensils"></i></div>
+                <div class="avatar-option" data-icon="fa-car"><i class="fa-solid fa-car"></i></div>
+                <div class="avatar-option" data-icon="fa-bag-shopping"><i class="fa-solid fa-bag-shopping"></i></div>
+                <div class="avatar-option" data-icon="fa-paw"><i class="fa-solid fa-paw"></i></div>
+                <div class="avatar-option" data-icon="fa-dumbbell"><i class="fa-solid fa-dumbbell"></i></div>
+                <div class="avatar-option" data-icon="fa-stethoscope"><i class="fa-solid fa-stethoscope"></i></div>
+                <div class="avatar-option" data-icon="fa-coffee"><i class="fa-solid fa-coffee"></i></div>
+                <div class="avatar-option" data-icon="fa-sparkles"><i class="fa-solid fa-sparkles"></i></div>
             </div>
-            <button onclick="window.abrirPagamentoDAPfy()" class="btn btn-sm btn-dark rounded-pill fw-bold" style="font-size: 0.65rem;">Ativar</button>
-        </div>
-        <a id="btnZapAviso" href="#" target="_blank" class="btn btn-sm btn-success rounded-pill fw-bold text-center" style="font-size: 0.65rem; display: none;">
-            <i class="bi bi-whatsapp me-1"></i> Enviar Comprovante
-        </a>
-    </div>
-</div>
-
-<div id="splash-screen" class="splash-screen">
-    <img src="https://i.ibb.co/Z1z4tSvj/1772903229417.png" alt="DAPfy" class="splash-logo">
-    <div class="spinner-border text-primary" role="status"></div>
-</div>
-
-<div id="auth-section" class="auth-screen">
-    <div id="auth-content-box" class="card-auth">
-        </div>
-</div>
-
-<header class="app-header">
-    <div class="container d-flex justify-content-between align-items-center">
-        <span class="fw-bold text-primary"><i class="bi bi-lightning-fill"></i> <span id="displayLoja">Loja</span></span>
-        <div>
-            <button onclick="nav('config')" class="btn btn-sm btn-light rounded-pill me-1"><i class="bi bi-gear"></i></button>
-            <button onclick="logout()" class="btn btn-sm btn-light rounded-pill"><i class="bi bi-box-arrow-right"></i></button>
-        </div>
-    </div>
-</header>
-
-<div class="container mt-3">
-    <div id="page-home" class="app-page active">
-        <h5 class="fw-bold mb-3">Visão Geral</h5>
-        <div class="row g-2">
-            <div class="col-6"><div class="card-custom text-center"><small class="text-muted">Total Vendas</small><div class="h5 fw-bold text-primary mb-0" id="dashVendas">R$ 0,00</div></div></div>
-            <div class="col-6"><div class="card-custom text-center"><small class="text-muted">Cashback Ativo</small><div class="h5 fw-bold text-success mb-0" id="dashCash">R$ 0,00</div></div></div>
-        </div>
-        <div class="card-custom mt-2 d-flex justify-content-between align-items-center">
-            <div><p class="small text-muted mb-0">Clientes com Saldo</p><h4 class="fw-bold mb-0" id="dashClientes">0</h4></div>
-            <i class="bi bi-people text-primary fs-3"></i>
-        </div>
-    </div>
-
-    <div id="page-venda" class="app-page">
-        <h5 class="fw-bold mb-3">Nova Venda</h5>
-        <div class="card-custom">
-            <div class="mb-3"><label class="small fw-bold text-muted">CPF DO CLIENTE</label><input type="text" id="vendaCpf" class="form-control" placeholder="000.000.000-00"></div>
-            <div class="mb-3"><label class="small fw-bold text-muted">VALOR TOTAL (R$)</label><input type="number" id="vendaValor" class="form-control" placeholder="0.00"></div>
-            <div class="mb-4"><label class="small fw-bold text-muted">CASHBACK %</label><input type="number" id="vendaPct" class="form-control" value="5"></div>
-            <button onclick="registrarTransacao('venda')" class="btn-brand shadow">Confirmar e Gerar Saldo</button>
-        </div>
-    </div>
-
-    <div id="page-resgate" class="app-page">
-        <h5 class="fw-bold mb-3">Resgate</h5>
-        <div class="card-custom mb-3">
-            <div class="input-group">
-                <input type="text" id="buscaCpf" class="form-control" placeholder="CPF">
-                <button onclick="buscarSaldo()" class="btn btn-primary px-3"><i class="bi bi-search"></i></button>
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn-main" style="background: #334155; color: white;" onclick="toggleConfig()">Cancelar</button>
+                <button class="btn-main" onclick="salvarConfigFirebase()">Salvar Alterações</button>
             </div>
         </div>
-        <div id="boxResultado" class="card-custom text-center border-success bg-white" style="display:none">
-            <p class="text-muted small mb-1">Saldo Disponível:</p>
-            <h2 class="fw-bold text-success mb-3" id="valorSaldo">R$ 0,00</h2>
-            <button onclick="efetuarResgateIntegral()" class="btn-brand bg-success shadow">Validar Resgate Total</button>
-        </div>
     </div>
 
-    <div id="page-config" class="app-page">
-        <h5 class="fw-bold mb-3">Configurações</h5>
-        <div class="card-custom mb-3">
-            <label class="small fw-bold text-muted">NOME DA LOJA</label>
-            <input type="text" id="editNomeLoja" class="form-control mb-3">
-            <button onclick="salvarNovoNome()" class="btn-brand bg-dark shadow">Atualizar Nome</button>
+    <header id="header-main" class="hidden">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="header-avatar" id="main-avatar-icon"><i class="fa-solid fa-store"></i></div>
+            <h2 id="display-loja" style="font-size: 0.9rem;">DAPfy Connect</h2>
         </div>
-        <div class="card-custom">
-            <label class="small fw-bold text-muted mb-2">LICENÇA DAPFY</label>
-            <button onclick="window.abrirPagamentoDAPfy()" class="btn-activate-now shadow-sm">
-                <i class="bi bi-patch-check-fill"></i> Renovar Licença (R$ 1 Teste)
-            </button>
-            <button onclick="window.simularAtivacaoRapida()" class="btn btn-sm btn-outline-secondary w-100 rounded-pill mt-2" style="font-size: 0.65rem;">Forçar Ativação (Dev)</button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="toggleConfig()" style="background:none; border:none; color:var(--text-dim); font-size: 1.1rem; cursor:pointer"><i class="fa-solid fa-gear"></i></button>
+            <button class="btn-sair" onclick="fLogout()">Sair</button>
         </div>
+    </header>
+
+    <div class="content">
+        <section id="screen-auth">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <i class="fa-solid fa-bolt-lightning" style="font-size: 3rem; color: var(--primary);"></i>
+                <h1 style="margin-top: 10px;">DAPfy Connect</h1>
+            </div>
+            <div class="auth-tabs">
+                <button id="btn-tab-login" class="auth-tab-btn active" onclick="switchAuthTab('login')">Login</button>
+                <button id="btn-tab-cadastro" class="auth-tab-btn" onclick="switchAuthTab('cadastro')">Cadastrar</button>
+            </div>
+            <div id="group-loja-name" class="input-group hidden"><label>Nome da Loja</label><input type="text" id="auth-loja" placeholder="Ex: Barber Shop"></div>
+            <div class="input-group"><label>E-mail</label><input type="email" id="auth-email"></div>
+            <div class="input-group"><label>Senha</label>
+                <div class="pass-container">
+                    <input type="password" id="auth-pass" placeholder="••••••••">
+                    <i class="fa-solid fa-eye toggle-pass" id="eye-icon" onclick="togglePassView()"></i>
+                </div>
+            </div>
+            <button class="btn-main" onclick="fAuth()">Entrar no Sistema</button>
+        </section>
+
+        <section id="tab-inicio" class="hidden">
+            <label>Buscar por CPF</label>
+            <input type="text" id="cpf-busca" maxlength="11" placeholder="Somente números">
+            <button class="btn-main" style="margin-top:10px" onclick="buscarCliente()"><i class="fa-solid fa-search"></i> Consultar</button>
+            <div id="busca-resultado" class="hidden" style="margin-top: 20px;">
+                <div class="card-glass">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">Saldo Acumulado</span>
+                    <h2 class="success-text" style="font-size: 2rem;">R$ <span id="res-saldo">0.00</span></h2>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-lancar" class="hidden">
+            <h3>Lançar Cashback</h3>
+            <div class="card-glass">
+                <input type="text" id="lancar-cpf" readonly style="margin-bottom:10px; opacity:0.6">
+                <label>Valor da Venda</label><input type="number" id="valor-venda" oninput="calcLancar()">
+                <label style="margin-top:10px">% de Retorno</label><input type="number" id="porcentagem-venda" value="5" oninput="calcLancar()">
+                <h2 class="success-text" style="text-align: right; margin-top:10px">R$ <span id="previa-lancar">0.00</span></h2>
+            </div>
+            <button class="btn-main" onclick="fLancar()">Confirmar Lançamento</button>
+        </section>
+
+        <section id="tab-resgate" class="hidden">
+            <h3>Resgate de Pontos</h3>
+            <div class="card-glass">
+                <input type="text" id="resgate-cpf" maxlength="11" placeholder="CPF do Cliente">
+                <button class="btn-main" style="background:#334155; margin-top:10px" onclick="vSaldoResgate()">Verificar</button>
+                <div id="box-resgate-acao" class="hidden">
+                    <h2 class="success-text" style="margin-top:15px">Disponível: R$ <span id="resgate-saldo-viva">0.00</span></h2>
+                    <input type="number" id="valor-resgate" placeholder="Valor a descontar">
+                    <button class="btn-main" style="background:var(--danger); color:white; margin-top:15px;" onclick="fResgatar()">Confirmar Resgate</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-mural" class="hidden">
+            <h3>Mural de Promoções</h3>
+            <div class="card-glass">
+                <input type="text" id="mural-titulo" placeholder="Título"><textarea id="mural-desc" rows="2" placeholder="Descreva a oferta..." style="margin-top:10px"></textarea>
+                <button class="btn-main" style="margin-top:10px" onclick="fPublicar()">Publicar Agora</button>
+            </div>
+            <div id="feed-ofertas"></div>
+        </section>
+
+        <section id="tab-registros" class="hidden"><h3>Histórico de Transações</h3><div id="lista-hist"></div></section>
     </div>
+
+    <nav id="nav-main" class="nav-bar hidden">
+        <div class="nav-item active" onclick="swTab('inicio', this)"><i class="fa-solid fa-search"></i><span>Início</span></div>
+        <div class="nav-item" onclick="swTab('lancar', this)"><i class="fa-solid fa-plus-circle"></i><span>Lançar</span></div>
+        <div class="nav-item" onclick="swTab('resgate', this)"><i class="fa-solid fa-coins"></i><span>Resgate</span></div>
+        <div class="nav-item" onclick="swTab('mural', this)"><i class="fa-solid fa-bullhorn"></i><span>Mural</span></div>
+        <div class="nav-item" onclick="swTab('registros', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Histórico</span></div>
+    </nav>
 </div>
-
-<nav class="bottom-nav">
-    <button class="nav-item-btn active" onclick="nav('home')"><i class="bi bi-graph-up-arrow"></i><span>Painel</span></button>
-    <button class="nav-item-btn" onclick="nav('venda')"><i class="bi bi-plus-circle-fill"></i><span>Venda</span></button>
-    <button class="nav-item-btn" onclick="nav('resgate')"><i class="bi bi-wallet2"></i><span>Resgate</span></button>
-    <button class="nav-item-btn" onclick="nav('config')"><i class="bi bi-gear"></i><span>Ajustes</span></button>
-</nav>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
-        authDomain: "dapfycashback-92583.firebaseapp.com",
-        projectId: "dapfycashback-92583",
-        storageBucket: "dapfycashback-92583.firebasestorage.app",
-        messagingSenderId: "1041877443665",
-        appId: "1:1041877443665:web:0792707a9f1abe28c80470"
+      apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
+      authDomain: "dapfycashback-92583.firebaseapp.com",
+      projectId: "dapfycashback-92583",
+      storageBucket: "dapfycashback-92583.firebasestorage.app",
+      messagingSenderId: "1041877443665",
+      appId: "1:1041877443665:web:0792707a9f1abe28c80470"
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    let logado = null;
-    let docIdUsuario = null;
-    const SEU_NUMERO_WHATSAPP = "5551984107530";
+    let currentAuthMode = 'login';
+    let lojistaData = null;
 
-    // --- RENDERIZAÇÃO DE INTERFACE AUTH/BLOQUEIO ---
-    function mostrarLoginUI() {
-        document.getElementById('auth-content-box').innerHTML = `
-            <div class="text-center mb-4">
-                <h4 class="fw-bold">Login Lojista</h4>
-                <p class="text-muted small">Gerencie seu Cashback Cloud</p>
-            </div>
-            <input type="email" id="loginEmail" class="form-control mb-3" placeholder="E-mail da Loja">
-            <input type="password" id="loginSenha" class="form-control mb-4" placeholder="Senha">
-            <button onclick="window.executarLogin()" class="btn-brand shadow mb-3">Entrar</button>
-            <p class="text-center small">Novo aqui? <span class="text-primary fw-bold" style="cursor:pointer" onclick="window.mostrarRegUI()">Criar Conta</span></p>
-        `;
-    }
+    // AUTH LOGIC
+    window.fAuth = async () => {
+        const e = document.getElementById('auth-email').value;
+        const p = document.getElementById('auth-pass').value;
+        const l = document.getElementById('auth-loja').value;
+        if(!e || !p) return alert("Preencha e-mail e senha");
 
-    window.mostrarRegUI = () => {
-        document.getElementById('auth-content-box').innerHTML = `
-            <h4 class="fw-bold mb-4">Nova Loja</h4>
-            <input type="text" id="regNome" class="form-control mb-2" placeholder="Nome da Empresa">
-            <input type="email" id="regEmail" class="form-control mb-2" placeholder="E-mail">
-            <input type="password" id="regSenha" class="form-control mb-4" placeholder="Senha (mín. 6 chars)">
-            <button onclick="window.executarCadastro()" class="btn-brand mb-3">Cadastrar</button>
-            <p class="text-center small" onclick="window.mostrarLoginUI()" style="cursor:pointer">Voltar ao login</p>
-        `;
-    }
-    window.mostrarLoginUI = mostrarLoginUI;
+        try {
+            if(currentAuthMode === 'cadastro') {
+                if(!l) return alert("Dê um nome à sua loja");
+                const res = await createUserWithEmailAndPassword(auth, e, p);
+                await setDoc(doc(db, "lojistas", res.user.uid), {
+                    nomeLoja: l, icone: 'fa-store', registros: [], ofertas: []
+                });
+            } else {
+                await signInWithEmailAndPassword(auth, e, p);
+            }
+        } catch (err) { alert("Falha: " + err.message); }
+    };
 
-    function mostrarBloqueioUI(dados) {
-        const msgWhats = encodeURIComponent(`Olá! Minha licença expirou.\nLoja: ${dados.nome}\nEmail: ${dados.email}`);
-        document.getElementById('auth-content-box').innerHTML = `
-            <div class="text-center">
-                <i class="bi bi-exclamation-octagon-fill text-danger fs-1 mb-3"></i>
-                <h4 class="fw-bold">Acesso Suspenso</h4>
-                <p class="text-muted small">Sua licença DAPfy expirou ou está pendente.</p>
-                <button onclick="window.abrirPagamentoDAPfy()" class="btn-activate-now shadow-sm mt-3"><i class="bi bi-patch-check-fill"></i> Ativar Licença Agora</button>
-                <a href="https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}" target="_blank" class="btn-whatsapp-support mt-2"><i class="bi bi-whatsapp"></i> Enviar Comprovante</a>
-                <p class="mt-4 small text-primary" style="cursor:pointer" onclick="window.logout()">Sair da conta</p>
-            </div>
-        `;
-    }
-
-    // --- LÓGICA DE ESTADO ---
     onAuthStateChanged(auth, (user) => {
-        const authSection = document.getElementById('auth-section');
-        if (user) {
-            const q = query(collection(db, "usuarios"), where("email", "==", user.email.toLowerCase().trim()));
-            onSnapshot(q, (snap) => {
-                if(!snap.empty) {
-                    const dados = snap.docs[0].data();
-                    logado = dados;
-                    docIdUsuario = snap.docs[0].id;
-
-                    if (dados.status === 'pendente') {
-                        authSection.style.display = 'flex';
-                        mostrarBloqueioUI(dados);
-                    } else {
-                        authSection.style.display = 'none';
-                        document.getElementById('displayLoja').innerText = dados.nome;
-                        startSync();
-                    }
+        if(user) {
+            onSnapshot(doc(db, "lojistas", user.uid), (snap) => {
+                if(snap.exists()){
+                    lojistaData = snap.data();
+                    document.getElementById('display-loja').innerText = lojistaData.nomeLoja;
+                    document.getElementById('main-avatar-icon').innerHTML = `<i class="fa-solid ${lojistaData.icone}" style="color: var(--primary);"></i>`;
+                    renderMural(); renderHist();
+                    document.getElementById('screen-auth').classList.add('hidden');
+                    document.querySelectorAll('#header-main, #nav-main, #tab-inicio').forEach(el => el.classList.remove('hidden'));
                 }
             });
         } else {
-            authSection.style.display = 'flex';
-            mostrarLoginUI();
+            document.getElementById('screen-auth').classList.remove('hidden');
+            document.querySelectorAll('#header-main, #nav-main, section:not(#screen-auth)').forEach(el => el.classList.add('hidden'));
         }
-        setTimeout(() => document.getElementById('splash-screen').classList.add('fade-out'), 1500);
     });
 
-    // --- FUNÇÕES GLOBAIS ---
-    window.executarLogin = async () => {
-        const e = document.getElementById('loginEmail').value.toLowerCase().trim();
-        const s = document.getElementById('loginSenha').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("Credenciais inválidas."); }
-    };
+    window.fLogout = () => confirm("Sair do DAPfy Connect?") && signOut(auth);
 
-    window.executarCadastro = async () => {
-        const n = document.getElementById('regNome').value;
-        const e = document.getElementById('regEmail').value.toLowerCase().trim();
-        const s = document.getElementById('regSenha').value;
-        try {
-            const res = await createUserWithEmailAndPassword(auth, e, s);
-            await addDoc(collection(db, "usuarios"), { 
-                uid: res.user.uid, nome: n, email: e, status: 'ativo', 
-                dataCadastro: serverTimestamp(), ultimaRenovacao: serverTimestamp() 
-            });
-        } catch(err) { alert("Erro: " + err.message); }
-    };
-
-    window.logout = () => signOut(auth).then(() => location.reload());
-
-    window.abrirPagamentoDAPfy = () => {
-        const email = (logado?.email || auth.currentUser?.email || "").toLowerCase().trim();
-        window.open(`https://mpago.la/1ZKPCJF?external_reference=${encodeURIComponent(email)}`, '_blank');
-    };
-
-    window.simularAtivacaoRapida = async () => {
-        const email = auth.currentUser.email.toLowerCase().trim();
-        try {
-            await fetch("https://us-central1-dapfycashback-92583.cloudfunctions.net/webhookMercadoPago", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: "payment", data: { id: "TESTE_MANUAL" }, external_reference: email })
-            });
-            alert("Sincronização enviada!");
-        } catch (e) { alert("Erro de conexão."); }
-    };
-
-    function startSync() {
-        const q = query(collection(db, "transacoes"), where("loja", "==", logado.email.toLowerCase().trim()));
-        onSnapshot(q, (snapshot) => {
-            const t = snapshot.docs.map(doc => doc.data());
-            const total = t.filter(x => x.tipo === 'venda').reduce((a, b) => a + (Number(b.valor) || 0), 0);
-            document.getElementById('dashVendas').innerText = `R$ ${total.toFixed(2)}`;
-            document.getElementById('dashClientes').innerText = [...new Set(t.map(x => x.cpf))].length;
+    // CORE LOGIC
+    window.buscarCliente = () => {
+        const cpf = document.getElementById('cpf-busca').value;
+        if(cpf.length < 11) return alert("CPF Incompleto");
+        let saldo = 0;
+        lojistaData.registros.filter(r => r.cpf === cpf).forEach(r => {
+            saldo += (r.type === 'IN' ? parseFloat(r.val) : -parseFloat(r.val));
         });
-    }
-
-    window.nav = (p) => {
-        document.querySelectorAll('.app-page').forEach(x => x.classList.remove('active'));
-        document.getElementById('page-'+p).classList.add('active');
-        document.querySelectorAll('.nav-item-btn').forEach(btn => btn.classList.remove('active'));
-        if(event) event.currentTarget.classList.add('active');
+        document.getElementById('res-saldo').innerText = saldo.toFixed(2);
+        document.getElementById('busca-resultado').classList.remove('hidden');
+        document.getElementById('lancar-cpf').value = cpf;
     };
+
+    window.fLancar = async () => {
+        const cash = document.getElementById('previa-lancar').innerText;
+        const cpf = document.getElementById('lancar-cpf').value;
+        if(parseFloat(cash) <= 0) return alert("Valor inválido");
+        if(confirm(`Confirmar R$ ${cash} de crédito para o CPF ${cpf}?`)) {
+            await updateDoc(doc(db, "lojistas", auth.currentUser.uid), {
+                registros: arrayUnion({ type:'IN', cpf, val: cash, data: new Date().toLocaleDateString() })
+            });
+            alert("Sucesso!");
+            document.getElementById('valor-venda').value = "";
+            swTab('registros', document.querySelectorAll('.nav-item')[4]);
+        }
+    };
+
+    window.vSaldoResgate = () => {
+        const cpf = document.getElementById('resgate-cpf').value;
+        let saldo = 0;
+        lojistaData.registros.filter(r => r.cpf === cpf).forEach(r => {
+            saldo += (r.type === 'IN' ? parseFloat(r.val) : -parseFloat(r.val));
+        });
+        document.getElementById('resgate-saldo-viva').innerText = saldo.toFixed(2);
+        document.getElementById('box-resgate-acao').classList.remove('hidden');
+    };
+
+    window.fResgatar = async () => {
+        const val = parseFloat(document.getElementById('valor-resgate').value);
+        const cpf = document.getElementById('resgate-cpf').value;
+        const disp = parseFloat(document.getElementById('resgate-saldo-viva').innerText);
+        if(val > disp) return alert("Saldo insuficiente");
+        if(confirm(`Confirmar resgate de R$ ${val.toFixed(2)}?`)) {
+            await updateDoc(doc(db, "lojistas", auth.currentUser.uid), {
+                registros: arrayUnion({ type:'OUT', cpf, val: val.toFixed(2), data: new Date().toLocaleDateString() })
+            });
+            alert("Resgate realizado!");
+            document.getElementById('valor-resgate').value = "";
+            swTab('registros', document.querySelectorAll('.nav-item')[4]);
+        }
+    };
+
+    window.fPublicar = async () => {
+        const t = document.getElementById('mural-titulo').value;
+        const d = document.getElementById('mural-desc').value;
+        if(!t || !d) return;
+        await updateDoc(doc(db, "lojistas", auth.currentUser.uid), {
+            ofertas: arrayUnion({ id: Date.now(), t, d })
+        });
+        document.getElementById('mural-titulo').value = ""; document.getElementById('mural-desc').value = "";
+    };
+
+    window.salvarConfigFirebase = async () => {
+        const n = document.getElementById('config-nome-loja').value || lojistaData.nomeLoja;
+        const i = document.querySelector('.avatar-option.selected').dataset.icon;
+        await updateDoc(doc(db, "lojistas", auth.currentUser.uid), { nomeLoja: n, icone: i });
+        toggleConfig();
+    };
+
+    // UI UI HELPERS
+    window.renderMural = () => {
+        document.getElementById('feed-ofertas').innerHTML = lojistaData.ofertas.map(o => `
+            <div class="card-glass">
+                <div style="display:flex; align-items:center; gap:8px"><i class="fa-solid ${lojistaData.icone} success-text"></i><small>${lojistaData.nomeLoja}</small></div>
+                <h4 class="success-text" style="margin-top:10px">${o.t}</h4><p style="font-size:0.8rem">${o.d}</p>
+            </div>
+        `).reverse().join('');
+    };
+
+    window.renderHist = () => {
+        document.getElementById('lista-hist').innerHTML = lojistaData.registros.map(r => `
+            <div class="card-glass">
+                <div style="display:flex; justify-content:space-between"><strong>CPF: ${r.cpf}</strong><small>${r.data}</small></div>
+                <div class="${r.type=='IN'?'success-text':'danger-text'}">${r.type=='IN'?'+ R$':'- R$'} ${r.val}</div>
+            </div>
+        `).reverse().join('');
+    };
+
+    window.swTab = (id, el) => {
+        document.querySelectorAll('.content section').forEach(s => s.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('tab-'+id).classList.remove('hidden');
+        el.classList.add('active');
+    };
+
+    window.switchAuthTab = (mode) => {
+        currentAuthMode = mode;
+        document.getElementById('btn-tab-login').classList.toggle('active', mode === 'login');
+        document.getElementById('btn-tab-cadastro').classList.toggle('active', mode === 'cadastro');
+        document.getElementById('group-loja-name').classList.toggle('hidden', mode === 'login');
+    };
+
+    window.togglePassView = () => {
+        const p = document.getElementById('auth-pass');
+        p.type = p.type === 'password' ? 'text' : 'password';
+        document.getElementById('eye-icon').classList.toggle('fa-eye-slash');
+    };
+
+    window.calcLancar = () => {
+        const v = parseFloat(document.getElementById('valor-venda').value) || 0;
+        const p = parseFloat(document.getElementById('porcentagem-venda').value) || 0;
+        document.getElementById('previa-lancar').innerText = (v * (p/100)).toFixed(2);
+    };
+
+    window.toggleConfig = () => document.getElementById('modal-config').classList.toggle('hidden');
+
+    document.querySelectorAll('.avatar-option').forEach(opt => {
+        opt.onclick = () => {
+            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+        };
+    });
 </script>
 </body>
 </html>
