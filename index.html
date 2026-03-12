@@ -176,7 +176,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, getDocs, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -204,11 +204,9 @@
         }, 3000); 
     });
 
-    // FUNÇÃO PRINCIPAL: Gera o link dinâmico para ativação automática
     window.abrirPagamentoDAPfy = () => {
         if (!logado || !logado.email) return alert("Erro: E-mail não identificado.");
         const linkBase = "https://mpago.la/1ZKPCJF";
-        // Enviamos o email como external_reference para a Function capturar
         const linkDinamico = `${linkBase}?external_reference=${encodeURIComponent(logado.email)}`;
         window.open(linkDinamico, '_blank');
     };
@@ -228,13 +226,14 @@
                                 <div class="text-center">
                                     <i class="bi bi-exclamation-octagon-fill text-danger fs-1 mb-3"></i>
                                     <h4 class="fw-bold">Acesso Suspenso</h4>
-                                    <p class="text-muted small">Sua licença expirou. Ative abaixo para liberar.</p>
+                                    <p class="text-muted small">Sua licença expirou há mais de 30 dias. Ative para liberar o Cloud.</p>
                                     <button onclick="abrirPagamentoDAPfy()" class="btn-activate-now shadow-sm mt-3"><i class="bi bi-patch-check-fill"></i> Ativar Licença Agora</button>
                                     <a href="https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}" target="_blank" class="btn-whatsapp-support"><i class="bi bi-whatsapp"></i> Enviar Comprovante</a>
                                     <p class="mt-4 small text-primary" style="cursor:pointer" onclick="logout()">Sair da conta</p>
                                 </div>`;
                             return;
                         }
+
                         docIdUsuario = snap.docs[0].id;
                         logado = dados;
                         verificarCiclo(dados);
@@ -248,20 +247,52 @@
         });
     }
 
+    function verificarCiclo(u) {
+        // [NOVA LOGICA] Usa a última renovação ou a data de cadastro como referência
+        const dataRef = u.ultimaRenovacao ? 
+            (u.ultimaRenovacao.toDate ? u.ultimaRenovacao.toDate() : new Date(u.ultimaRenovacao)) : 
+            (u.dataCadastro.toDate ? u.dataCadastro.toDate() : new Date(u.dataCadastro));
+
+        const hoje = new Date();
+        const diff = hoje - dataRef;
+        const diasPassados = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const restam = Math.max(0, 30 - diasPassados);
+        
+        const msgWhats = encodeURIComponent(`Olá! Quero enviar meu comprovante.\n\nLoja: ${u.nome}`);
+        document.getElementById('btnZapConfig').href = `https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}`;
+        document.getElementById('btnZapAviso').href = `https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}`;
+        
+        if (restam <= 3) {
+            document.getElementById('avisoVencimento').style.display = "block";
+            document.getElementById('btnZapAviso').style.display = "block";
+            document.getElementById('diasAviso').innerText = restam;
+        } else {
+            document.getElementById('avisoVencimento').style.display = "none";
+        }
+    }
+
     window.login = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginSenha').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("Erro ao entrar."); }
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (e) { alert("E-mail ou senha incorretos."); }
     };
 
     window.cadastrar = async () => {
         const n = document.getElementById('regNome').value;
         const e = document.getElementById('regEmail').value;
         const s = document.getElementById('regSenha').value;
+        if(n === "" || e === "" || s.length < 6) return alert("Preencha os dados corretamente.");
         try {
             const res = await createUserWithEmailAndPassword(auth, e, s);
-            await addDoc(collection(db, "usuarios"), { uid: res.user.uid, nome: n, email: e, status: 'ativo', dataCadastro: new Date().toISOString() });
-        } catch(err) { alert("Erro ao cadastrar."); }
+            await addDoc(collection(db, "usuarios"), { 
+                uid: res.user.uid, 
+                nome: n, 
+                email: e, 
+                status: 'ativo', 
+                dataCadastro: serverTimestamp(),
+                ultimaRenovacao: serverTimestamp() 
+            });
+        } catch(err) { alert("Erro ao cadastrar: " + err.message); }
     };
 
     window.logout = () => signOut(auth).then(() => location.reload());
@@ -274,23 +305,6 @@
         });
     }
 
-    function verificarCiclo(u) {
-        if(!u.dataCadastro) return;
-        const diff = new Date() - new Date(u.dataCadastro);
-        const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const restam = Math.max(0, 30 - dias);
-        const msgWhats = encodeURIComponent(`Olá! Quero enviar meu comprovante.\n\nLoja: ${u.nome}`);
-        
-        document.getElementById('btnZapConfig').href = `https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}`;
-        document.getElementById('btnZapAviso').href = `https://wa.me/${SEU_NUMERO_WHATSAPP}?text=${msgWhats}`;
-        
-        if (restam <= 3) {
-            document.getElementById('avisoVencimento').style.display = "block";
-            document.getElementById('btnZapAviso').style.display = "block";
-            document.getElementById('diasAviso').innerText = restam;
-        }
-    }
-
     function render() {
         const totalV = transacoesCache.filter(t => t.tipo === 'venda').reduce((a, b) => a + (b.valor || 0), 0);
         document.getElementById('dashVendas').innerText = `R$ ${totalV.toFixed(2)}`;
@@ -300,6 +314,8 @@
     window.nav = (p) => {
         document.querySelectorAll('.app-page').forEach(x => x.classList.remove('active'));
         document.getElementById('page-'+p).classList.add('active');
+        document.querySelectorAll('.nav-item-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
     };
 
     window.togglePass = (id) => {
@@ -309,8 +325,15 @@
 
     window.salvarNovoNome = async () => {
         const n = document.getElementById('editNomeLoja').value;
-        if(docIdUsuario) await updateDoc(doc(db, "usuarios", docIdUsuario), { nome: n });
-        alert("Atualizado!");
+        if(docIdUsuario) {
+            await updateDoc(doc(db, "usuarios", docIdUsuario), { nome: n });
+            alert("Nome da loja atualizado!");
+        }
+    };
+
+    window.showAuth = (type) => {
+        document.getElementById('login-box').style.display = type === 'login' ? 'block' : 'none';
+        document.getElementById('reg-box').style.display = type === 'reg' ? 'block' : 'none';
     };
 </script>
 </body>
