@@ -16,6 +16,7 @@
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --danger: #ff4757;
+            --gold: #d4af37;
             --border: rgba(255, 255, 255, 0.08);
             --radius: 24px;
         }
@@ -30,16 +31,21 @@
         .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 110px; scrollbar-width: none; }
         .content::-webkit-scrollbar { display: none; }
 
-        .nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 85px; background: #1e293b; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 10px; z-index: 150; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); cursor: pointer; font-size: 0.65rem; transition: 0.2s; }
+        .nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 85px; background: #1e293b; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 5px; z-index: 150; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); cursor: pointer; font-size: 0.6rem; transition: 0.2s; text-align: center; gap: 4px; }
         .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item.gold-nav { color: var(--gold); opacity: 0.8; }
+        .nav-item.gold-nav.active { opacity: 1; filter: drop-shadow(0 0 5px var(--gold)); }
 
         .card-glass { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
         label { font-size: 0.65rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; display: block; }
         input, textarea { width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; }
-        .btn-main { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 15px; font-weight: 700; cursor: pointer; color: #000; transition: 0.3s; }
-        .btn-main:active { transform: scale(0.98); opacity: 0.8; }
         
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 15px; font-weight: 700; cursor: pointer; color: #000; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-main:active { transform: scale(0.98); opacity: 0.8; }
+        .btn-gold { background: linear-gradient(45deg, #d4af37, #f9d976); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2); }
+
         .auth-tab-container { display: flex; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; margin-bottom: 20px; }
         .auth-tab { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: var(--text-dim); font-weight: 700; cursor: pointer; }
         .auth-tab.active { background: var(--primary); color: #000; }
@@ -76,24 +82,19 @@
                 <i class="fa-solid fa-bolt-lightning" style="font-size: 3rem; color: var(--primary);"></i>
                 <h1 style="margin-top: 10px;">DAPfy Connect</h1>
             </div>
-
             <div class="auth-tab-container">
                 <button id="tab-login" class="auth-tab active" onclick="switchAuth('login')">Login</button>
                 <button id="tab-cadastro" class="auth-tab" onclick="switchAuth('cadastro')">Cadastro</button>
             </div>
-
             <div id="field-nome-loja" class="hidden">
                 <label>NOME DA LOJA / EMPRESA</label>
                 <input type="text" id="reg-nome" placeholder="Ex: Barber Shop">
             </div>
-
             <label>E-MAIL</label>
             <input type="email" id="auth-email" placeholder="seu@email.com">
-            
             <label>SENHA</label>
             <input type="password" id="auth-pass" placeholder="••••••••">
             <span id="forgot-pass" onclick="fResetarSenha()" style="display:block; text-align:right; font-size:0.7rem; color:var(--text-dim); cursor:pointer; margin-top:-5px; margin-bottom:15px;">Esqueci minha senha</span>
-
             <button class="btn-main" id="btn-auth-action" onclick="fExecutarAuth()">Entrar no Sistema</button>
         </section>
 
@@ -101,7 +102,6 @@
             <label>BUSCAR CLIENTE POR CPF</label>
             <input type="text" id="cpf-busca" placeholder="Apenas números" maxlength="11">
             <button class="btn-main" onclick="buscarCliente()"><i class="fa-solid fa-search"></i> Consultar</button>
-            
             <div id="busca-resultado" class="hidden" style="margin-top:20px">
                 <div class="card-glass">
                     <small style="color:var(--text-dim)">Saldo Acumulado</small>
@@ -131,7 +131,6 @@
             <label>CPF DO CLIENTE</label>
             <input type="text" id="resgate-cpf" placeholder="00000000000" maxlength="11">
             <button class="btn-main" style="background:#334155; color:white;" onclick="vSaldoResgate()">Verificar Disponibilidade</button>
-            
             <div id="box-resgate-acao" class="hidden" style="margin-top:20px">
                 <div class="card-glass">
                     <p>Saldo: <span class="success-text">R$ <span id="resgate-saldo-viva">0.00</span></span></p>
@@ -152,6 +151,32 @@
             <div id="feed-ofertas"></div>
         </section>
 
+        <section id="tab-premium" class="hidden">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 style="color: var(--gold);"><i class="fa-solid fa-crown"></i> DAPfy Premium</h3>
+                <p style="font-size: 0.8rem; color: var(--text-dim);">Aumente o poder do seu negócio</p>
+            </div>
+            <div class="card-glass" style="border-color: rgba(212,175,55,0.3); text-align: center;">
+                <div style="margin-bottom: 20px;">
+                    <span style="font-size: 0.7rem; color: var(--text-dim);">PLANO PROFISSIONAL</span>
+                    <h2 style="font-size: 2.5rem;">R$ 29,90</h2>
+                </div>
+                <div style="text-align: left; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 25px;">
+                    <p style="margin-bottom: 8px;"><i class="fa-solid fa-check text-success"></i> Ofertas ilimitadas no Mural</p>
+                    <p style="margin-bottom: 8px;"><i class="fa-solid fa-check text-success"></i> Suporte VIP via WhatsApp</p>
+                    <p><i class="fa-solid fa-check text-success"></i> Relatórios de performance</p>
+                </div>
+                <a href="https://mpago.la/1ZKPCJF" target="_blank" style="text-decoration: none;">
+                    <button class="btn-main btn-gold">
+                        <i class="fa-solid fa-bolt"></i> ATIVAR PREMIUM AGORA
+                    </button>
+                </a>
+                <p style="margin-top: 15px; font-size: 0.6rem; color: var(--text-dim); opacity: 0.7;">
+                    Pagamento 100% Seguro via Mercado Pago
+                </p>
+            </div>
+        </section>
+
         <section id="tab-registros" class="hidden">
             <h3>Histórico de Movimentações</h3>
             <div id="lista-hist"></div>
@@ -161,8 +186,8 @@
     <nav id="nav-main" class="nav-bar hidden">
         <div class="nav-item active" onclick="swTab('inicio', this)"><i class="fa-solid fa-search"></i><span>Início</span></div>
         <div class="nav-item" onclick="swTab('lancar', this)"><i class="fa-solid fa-plus-circle"></i><span>Lançar</span></div>
-        <div class="nav-item" onclick="swTab('resgate', this)"><i class="fa-solid fa-coins"></i><span>Resgate</span></div>
         <div class="nav-item" onclick="swTab('mural', this)"><i class="fa-solid fa-bullhorn"></i><span>Mural</span></div>
+        <div class="nav-item gold-nav" onclick="swTab('premium', this)"><i class="fa-solid fa-crown"></i><span>Premium</span></div>
         <div class="nav-item" onclick="swTab('registros', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Histórico</span></div>
     </nav>
 </div>
@@ -178,7 +203,6 @@
         query, where, orderBy, serverTimestamp, deleteDoc 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Configuração do seu Projeto
     const firebaseConfig = {
       apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
       authDomain: "dapfycashback-92583.firebaseapp.com",
@@ -194,15 +218,10 @@
 
     let authMode = 'login';
 
-    // Gerenciador de Autenticação
     onAuthStateChanged(auth, (user) => {
         if(user) {
             onSnapshot(doc(db, "lojistas", user.uid), (snap) => {
-                if(!snap.exists()) {
-                    // Caso o user exista no Auth mas não no Firestore (segurança)
-                    signOut(auth);
-                    return;
-                }
+                if(!snap.exists()) { signOut(auth); return; }
                 const data = snap.data();
                 if(data.status === 'bloqueado') {
                     document.getElementById('screen-blocked').classList.remove('hidden');
@@ -240,37 +259,26 @@
                 if(!nome) throw new Error("Informe o nome da sua empresa");
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await setDoc(doc(db, "lojistas", res.user.uid), {
-                    nomeLoja: nome,
-                    status: 'ativo',
-                    dataCriacao: serverTimestamp()
+                    nomeLoja: nome, status: 'ativo', dataCriacao: serverTimestamp()
                 });
-            } else {
-                await signInWithEmailAndPassword(auth, email, pass);
-            }
+            } else { await signInWithEmailAndPassword(auth, email, pass); }
         } catch (err) { alert(err.message); }
     };
 
-    window.fResetarSenha = () => {
-        const email = document.getElementById('auth-email').value;
-        if(!email) return alert("Digite seu e-mail acima para resetar a senha");
-        sendPasswordResetEmail(auth, email).then(() => alert("E-mail de recuperação enviado!")).catch(err => alert(err.message));
+    window.swTab = (id, el) => {
+        document.querySelectorAll('.content section').forEach(s => s.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('tab-'+id).classList.remove('hidden');
+        el.classList.add('active');
     };
 
-    // Lógica de Vendas e Cashback
     window.buscarCliente = () => {
         const cpf = document.getElementById('cpf-busca').value.replace(/\D/g, "");
         if(cpf.length < 11) return alert("Digite o CPF completo");
-        
-        const q = query(collection(db, "transacoes"), 
-                  where("lojistaId", "==", auth.currentUser.uid),
-                  where("cpf", "==", cpf));
-
+        const q = query(collection(db, "transacoes"), where("lojistaId", "==", auth.currentUser.uid), where("cpf", "==", cpf));
         onSnapshot(q, (snap) => {
             let saldo = 0;
-            snap.forEach(d => {
-                const r = d.data();
-                saldo += (r.type === 'IN' ? r.val : -r.val);
-            });
+            snap.forEach(d => { const r = d.data(); saldo += (r.type === 'IN' ? r.val : -r.val); });
             document.getElementById('res-saldo').innerText = saldo.toFixed(2);
             document.getElementById('busca-resultado').classList.remove('hidden');
             document.getElementById('lancar-cpf').value = cpf;
@@ -281,33 +289,20 @@
         const v = parseFloat(document.getElementById('previa-lancar').innerText);
         const cpf = document.getElementById('lancar-cpf').value;
         if(v <= 0) return alert("Valor inválido");
-
         await addDoc(collection(db, "transacoes"), {
-            lojistaId: auth.currentUser.uid,
-            cpf: cpf,
-            val: v,
-            type: 'IN',
-            data: serverTimestamp()
+            lojistaId: auth.currentUser.uid, cpf: cpf, val: v, type: 'IN', data: serverTimestamp()
         });
-        alert("Cashback Gerado com Sucesso!");
+        alert("Cashback Gerado!");
         document.getElementById('valor-venda').value = "";
         swTab('inicio', document.querySelectorAll('.nav-item')[0]);
     };
 
     window.vSaldoResgate = () => {
         const cpf = document.getElementById('resgate-cpf').value.replace(/\D/g, "");
-        if(cpf.length < 11) return alert("CPF Inválido");
-
-        const q = query(collection(db, "transacoes"), 
-                  where("lojistaId", "==", auth.currentUser.uid),
-                  where("cpf", "==", cpf));
-
+        const q = query(collection(db, "transacoes"), where("lojistaId", "==", auth.currentUser.uid), where("cpf", "==", cpf));
         onSnapshot(q, (snap) => {
             let saldo = 0;
-            snap.forEach(d => {
-                const r = d.data();
-                saldo += (r.type === 'IN' ? r.val : -r.val);
-            });
+            snap.forEach(d => { const r = d.data(); saldo += (r.type === 'IN' ? r.val : -r.val); });
             document.getElementById('resgate-saldo-viva').innerText = saldo.toFixed(2);
             document.getElementById('box-resgate-acao').classList.remove('hidden');
         });
@@ -316,30 +311,21 @@
     window.fResgatar = async () => {
         const v = parseFloat(document.getElementById('valor-resgate').value);
         const cpf = document.getElementById('resgate-cpf').value.replace(/\D/g, "");
-        const saldoDisp = parseFloat(document.getElementById('resgate-saldo-viva').innerText);
-
-        if(v > saldoDisp || v <= 0) return alert("Saldo insuficiente");
-
+        const s = parseFloat(document.getElementById('resgate-saldo-viva').innerText);
+        if(v > s || v <= 0) return alert("Saldo insuficiente");
         await addDoc(collection(db, "transacoes"), {
-            lojistaId: auth.currentUser.uid,
-            cpf: cpf,
-            val: v,
-            type: 'OUT',
-            data: serverTimestamp()
+            lojistaId: auth.currentUser.uid, cpf: cpf, val: v, type: 'OUT', data: serverTimestamp()
         });
         alert("Resgate Realizado!");
         document.getElementById('box-resgate-acao').classList.add('hidden');
-        document.getElementById('valor-resgate').value = "";
     };
 
     window.fPublicar = async () => {
         const t = document.getElementById('mural-titulo').value;
         const d = document.getElementById('mural-desc').value;
-        if(!t) return alert("Título é obrigatório");
-
+        if(!t) return alert("Título obrigatório");
         await addDoc(collection(db, "ofertas"), {
-            lojistaId: auth.currentUser.uid,
-            t: t, d: d, data: serverTimestamp()
+            lojistaId: auth.currentUser.uid, t: t, d: d, data: serverTimestamp()
         });
         document.getElementById('mural-titulo').value = "";
         document.getElementById('mural-desc').value = "";
@@ -350,17 +336,11 @@
         onSnapshot(q, (snap) => {
             document.getElementById('lista-hist').innerHTML = snap.docs.map(doc => {
                 const r = doc.data();
-                const d = r.data ? r.data.toDate().toLocaleDateString() : 'Processando...';
-                return `
-                    <div class="card-glass">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                            <small style="color:var(--text-dim)">CPF: ${r.cpf}</small>
-                            <small style="color:var(--primary)">${d}</small>
-                        </div>
-                        <div class="${r.type=='IN'?'success-text':'danger-text'}" style="font-size:1.1rem">
-                            ${r.type=='IN'?'+':'-'} R$ ${r.val.toFixed(2)}
-                        </div>
-                    </div>`;
+                const d = r.data ? r.data.toDate().toLocaleDateString() : '...';
+                return `<div class="card-glass">
+                    <div style="display:flex; justify-content:space-between;"><small>${r.cpf}</small><small>${d}</small></div>
+                    <div class="${r.type=='IN'?'success-text':'danger-text'}">${r.type=='IN'?'+':'-'} R$ ${r.val.toFixed(2)}</div>
+                </div>`;
             }).join('');
         });
     }
@@ -370,33 +350,25 @@
         onSnapshot(q, (snap) => {
             document.getElementById('feed-ofertas').innerHTML = snap.docs.map(doc => {
                 const o = doc.data();
-                return `
-                    <div class="offer-card">
-                        <button class="btn-del" onclick="fDeletar('ofertas', '${doc.id}')"><i class="fa-solid fa-trash"></i></button>
-                        <h4 style="color:var(--primary)">${o.t}</h4>
-                        <p style="font-size:0.8rem; color:var(--text-dim); margin-top:5px;">${o.d}</p>
-                    </div>`;
+                return `<div class="offer-card">
+                    <button class="btn-del" onclick="fDeletar('ofertas', '${doc.id}')"><i class="fa-solid fa-trash"></i></button>
+                    <h4 style="color:var(--primary)">${o.t}</h4><p>${o.d}</p>
+                </div>`;
             }).join('');
         });
     }
 
-    window.fDeletar = async (col, id) => {
-        if(confirm("Deseja remover esta oferta do mural dos clientes?")) await deleteDoc(doc(db, col, id));
-    };
-
+    window.fDeletar = async (col, id) => { if(confirm("Remover oferta?")) await deleteDoc(doc(db, col, id)); };
     window.fLogout = () => signOut(auth).then(() => location.reload());
-    
-    window.swTab = (id, el) => {
-        document.querySelectorAll('.content section').forEach(s => s.classList.add('hidden'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        document.getElementById('tab-'+id).classList.remove('hidden');
-        el.classList.add('active');
-    };
-
     window.calcLancar = () => {
         const v = parseFloat(document.getElementById('valor-venda').value) || 0;
         const p = parseFloat(document.getElementById('porcentagem-venda').value) || 0;
         document.getElementById('previa-lancar').innerText = (v * (p/100)).toFixed(2);
+    };
+    window.fResetarSenha = () => {
+        const email = document.getElementById('auth-email').value;
+        if(!email) return alert("Digite o e-mail");
+        sendPasswordResetEmail(auth, email).then(() => alert("E-mail enviado!"));
     };
 </script>
 </body>
