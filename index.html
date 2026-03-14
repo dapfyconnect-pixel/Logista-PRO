@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DAPfy Connect | Gestão de Cashback</title>
+    <title>DAPfy | Gestão de Fidelidade</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -16,140 +16,58 @@
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --danger: #ff4757;
-            --warning: #f1c40f;
             --border: rgba(255, 255, 255, 0.08);
             --radius: 24px;
         }
 
-        /* Reset e Base */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: var(--bg-dark); 
-            color: var(--text-main); 
-            height: 100dvh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden; 
-        }
+        body { background: var(--bg-dark); color: var(--text-main); height: 100dvh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
-        .app-card { 
-            background: var(--card-bg); 
-            width: 100%; 
-            height: 100%; 
-            max-width: 450px; 
-            position: relative; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        .app-card { background: var(--card-bg); width: 100%; height: 100%; max-width: 450px; position: relative; display: flex; flex-direction: column; overflow: hidden; }
+        @media (min-width: 768px) { .app-card { height: 90vh; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); } }
 
-        @media (min-width: 768px) { 
-            .app-card { height: 90vh; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); } 
-        }
-
-        /* Tela de Bloqueio Administrativo */
-        #screen-blocked {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-        }
-
-        /* Header e Elementos Visuais */
-        #banner-pagamento { background: var(--danger); color: white; padding: 10px; text-align: center; font-size: 0.75rem; font-weight: 700; display: none; flex-direction: column; gap: 8px; z-index: 1000; }
-        .btn-pay-now { background: white; color: black; border: none; padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; text-decoration: none; display: inline-block; font-weight: 800; }
-        header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); z-index: 100; flex-shrink: 0; }
-        .btn-sair { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
-        .trial-badge { background: var(--primary-glow); border: 1px solid var(--primary); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; }
-
-        /* Conteúdo e Navegação */
+        header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); z-index: 100; }
         .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 110px; scrollbar-width: none; }
         .content::-webkit-scrollbar { display: none; }
-        .nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 85px; background: #1e293b; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 10px; gap: 8px; z-index: 150; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); cursor: pointer; font-size: 0.65rem; font-weight: 600; border-radius: 12px; transition: all 0.2s ease; }
-        .nav-item i { font-size: 1.3rem; margin-bottom: 5px; }
-        .nav-item.active { color: var(--primary); background: rgba(0, 255, 136, 0.1); box-shadow: inset 0 0 0 1px var(--primary-glow); }
 
-        /* Card de Oferta Chamativo */
-        .offer-card {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(30, 41, 59, 0.8) 100%);
-            border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--primary-glow); position: relative; overflow: hidden;
-        }
-        .offer-card h4 { color: var(--primary); font-size: 1.1rem; margin-bottom: 8px; }
-        .btn-delete-promo { position: absolute; top: 12px; right: 12px; background: rgba(255, 71, 87, 0.2); color: var(--danger); border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; }
+        .nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 85px; background: #1e293b; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 10px; z-index: 150; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); cursor: pointer; font-size: 0.65rem; transition: 0.2s; }
+        .nav-item.active { color: var(--primary); }
 
-        /* Inputs e Botões */
-        .input-group { margin-bottom: 15px; }
-        label { font-size: 0.65rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; display: block; }
-        input, textarea { width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; border-radius: 12px; color: white; font-size: 0.95rem; outline: none; }
-        .btn-main { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 15px; font-weight: 700; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .card-glass { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
+        .card-glass { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
+        label { font-size: 0.65rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; display: block; }
+        input, textarea { width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; border-radius: 12px; color: white; margin-bottom: 10px; outline: none; }
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 15px; font-weight: 700; cursor: pointer; color: #000; transition: 0.3s; }
+        .btn-main:active { transform: scale(0.98); opacity: 0.8; }
+        
+        .auth-tab-container { display: flex; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; margin-bottom: 20px; }
+        .auth-tab { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: var(--text-dim); font-weight: 700; cursor: pointer; }
+        .auth-tab.active { background: var(--primary); color: #000; }
+
         .hidden { display: none !important; }
         .success-text { color: var(--primary); font-weight: bold; }
         .danger-text { color: var(--danger); font-weight: bold; }
-        .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .avatar-option { aspect-ratio: 1; border-radius: 12px; border: 2px solid transparent; cursor: pointer; background: #334155; display: flex; align-items: center; justify-content: center; color: var(--text-dim); }
-        .avatar-option.selected { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
-        .header-avatar { width: 38px; height: 38px; border-radius: 10px; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; border: 1px solid var(--primary); }
+
+        .offer-card { background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(30, 41, 59, 0.8)); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--primary-glow); position: relative; }
+        .btn-del { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    
-    <div id="screen-blocked" class="hidden">
-        <i class="fa-solid fa-hand-slashed" style="font-size: 4rem; color: var(--danger); margin-bottom: 20px;"></i>
-        <h2 style="color: white;">Acesso Suspenso</h2>
-        <p style="color: var(--text-dim); margin-top: 10px;">Sua conta foi bloqueada pelo administrador. Entre em contato com o suporte DAPfy.</p>
-        <button class="btn-main" style="margin-top: 30px; background: white;" onclick="window.open('https://wa.me/5551984107530')">Falar com Suporte</button>
-    </div>
-
-    <div id="banner-pagamento">
-        <span>⚠️ Seu acesso vence em breve! Regularize agora.</span>
-        <div style="display: flex; justify-content: center; gap: 10px;">
-            <a href="https://mpago.la/2LwD3d4" target="_blank" class="btn-pay-now">PAGAR AGORA</a>
-            <button onclick="enviarComprovante()" class="btn-pay-now" style="background: #25d366; color: white;">ENVIAR COMPROVANTE</button>
-        </div>
-    </div>
-
-    <div id="modal-config" class="hidden" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.98); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px;">
-        <div style="background:var(--card-bg); width:100%; padding:25px; border-radius:var(--radius); border:1px solid var(--border);">
-            <h3>Ajustes da Loja</h3>
-            <div class="input-group" style="margin-top:15px"><label>Nome da Empresa</label><input type="text" id="config-nome-loja"></div>
-            <div class="avatar-grid">
-                <div class="avatar-option selected" data-icon="fa-store"><i class="fa-solid fa-store"></i></div>
-                <div class="avatar-option" data-icon="fa-scissors"><i class="fa-solid fa-scissors"></i></div>
-                <div class="avatar-option" data-icon="fa-utensils"><i class="fa-solid fa-utensils"></i></div>
-                <div class="avatar-option" data-icon="fa-car"><i class="fa-solid fa-car"></i></div>
-                <div class="avatar-option" data-icon="fa-bag-shopping"><i class="fa-solid fa-bag-shopping"></i></div>
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 30px;">
-                <button class="btn-main" style="background: #334155; color: white;" onclick="toggleConfig()">Cancelar</button>
-                <button class="btn-main" onclick="salvarConfigFirebase()">Salvar</button>
-            </div>
-        </div>
+    <div id="screen-blocked" class="hidden" style="position:absolute; inset:0; background:var(--bg-dark); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px;">
+        <i class="fa-solid fa-hand-slashed" style="font-size:4rem; color:var(--danger)"></i>
+        <h2 style="margin-top:20px">Acesso Suspenso</h2>
+        <p style="color:var(--text-dim); margin-top:10px;">Sua conta precisa de atenção. Fale com o suporte DAPfy.</p>
+        <button class="btn-main" style="background:white; margin-top:30px;" onclick="window.open('https://wa.me/5551984107530')">Falar no WhatsApp</button>
     </div>
 
     <header id="header-main" class="hidden">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div class="header-avatar" id="main-avatar-icon"><i class="fa-solid fa-store"></i></div>
-            <div>
-                <h2 id="display-loja" style="font-size: 0.9rem;">DAPfy Connect</h2>
-                <div id="contagem-dias" class="trial-badge">...</div>
-            </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="color:var(--primary); font-size: 1.2rem;"><i class="fa-solid fa-bolt"></i></div>
+            <h2 id="display-loja" style="font-size:0.9rem;">DAPfy</h2>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <button onclick="toggleConfig()" style="background:none; border:none; color:var(--text-dim); cursor:pointer"><i class="fa-solid fa-gear"></i></button>
-            <button class="btn-sair" onclick="fLogout()">Sair</button>
-        </div>
+        <button onclick="fLogout()" style="background:rgba(255,71,87,0.1); border:1px solid var(--danger); color:var(--danger); padding:6px 12px; border-radius:10px; font-weight:700; font-size:0.7rem;">SAIR</button>
     </header>
 
     <div class="content">
@@ -158,28 +76,36 @@
                 <i class="fa-solid fa-bolt-lightning" style="font-size: 3rem; color: var(--primary);"></i>
                 <h1 style="margin-top: 10px;">DAPfy Connect</h1>
             </div>
-            <div class="auth-tabs">
-                <button id="btn-tab-login" class="auth-tab-btn active" onclick="switchAuthTab('login')">Login</button>
-                <button id="btn-tab-cadastro" class="auth-tab-btn" onclick="switchAuthTab('cadastro')">Cadastrar</button>
+
+            <div class="auth-tab-container">
+                <button id="tab-login" class="auth-tab active" onclick="switchAuth('login')">Login</button>
+                <button id="tab-cadastro" class="auth-tab" onclick="switchAuth('cadastro')">Cadastro</button>
             </div>
-            <div id="group-loja-name" class="input-group hidden"><label>Nome da Loja</label><input type="text" id="auth-loja" placeholder="Ex: Barber Shop"></div>
-            <div class="input-group"><label>E-mail</label><input type="email" id="auth-email"></div>
-            <div class="input-group">
-                <label>Senha</label>
-                <input type="password" id="auth-pass" placeholder="••••••••">
-                <span class="forgot-link" onclick="fEsqueciSenha()" style="display:block; text-align:right; font-size:0.7rem; color:var(--text-dim); cursor:pointer; margin-top:5px;">Esqueci minha senha</span>
+
+            <div id="field-nome-loja" class="hidden">
+                <label>NOME DA LOJA / EMPRESA</label>
+                <input type="text" id="reg-nome" placeholder="Ex: Barber Shop">
             </div>
-            <button class="btn-main" onclick="fAuth()">Entrar no Sistema</button>
+
+            <label>E-MAIL</label>
+            <input type="email" id="auth-email" placeholder="seu@email.com">
+            
+            <label>SENHA</label>
+            <input type="password" id="auth-pass" placeholder="••••••••">
+            <span id="forgot-pass" onclick="fResetarSenha()" style="display:block; text-align:right; font-size:0.7rem; color:var(--text-dim); cursor:pointer; margin-top:-5px; margin-bottom:15px;">Esqueci minha senha</span>
+
+            <button class="btn-main" id="btn-auth-action" onclick="fExecutarAuth()">Entrar no Sistema</button>
         </section>
 
         <section id="tab-inicio" class="hidden">
-            <label>Buscar por CPF</label>
-            <input type="text" id="cpf-busca" maxlength="11" placeholder="Somente números">
-            <button class="btn-main" style="margin-top:10px" onclick="buscarCliente()"><i class="fa-solid fa-search"></i> Consultar</button>
-            <div id="busca-resultado" class="hidden" style="margin-top: 20px;">
+            <label>BUSCAR CLIENTE POR CPF</label>
+            <input type="text" id="cpf-busca" placeholder="Apenas números" maxlength="11">
+            <button class="btn-main" onclick="buscarCliente()"><i class="fa-solid fa-search"></i> Consultar</button>
+            
+            <div id="busca-resultado" class="hidden" style="margin-top:20px">
                 <div class="card-glass">
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">Saldo Acumulado</span>
-                    <h2 class="success-text" style="font-size: 2rem;">R$ <span id="res-saldo">0.00</span></h2>
+                    <small style="color:var(--text-dim)">Saldo Acumulado</small>
+                    <h2 class="success-text" style="font-size:2rem">R$ <span id="res-saldo">0.00</span></h2>
                 </div>
             </div>
         </section>
@@ -187,37 +113,49 @@
         <section id="tab-lancar" class="hidden">
             <h3>Lançar Cashback</h3>
             <div class="card-glass">
-                <input type="text" id="lancar-cpf" readonly style="margin-bottom:10px; opacity:0.6">
-                <label>Valor da Venda</label><input type="number" id="valor-venda" oninput="calcLancar()">
-                <label style="margin-top:10px">% de Retorno</label><input type="number" id="porcentagem-venda" value="5" oninput="calcLancar()">
-                <h2 class="success-text" style="text-align: right; margin-top:10px">R$ <span id="previa-lancar">0.00</span></h2>
+                <input type="text" id="lancar-cpf" readonly style="opacity:0.5; font-weight:700">
+                <label>VALOR DA VENDA (R$)</label>
+                <input type="number" id="valor-venda" oninput="calcLancar()" placeholder="0.00">
+                <label>% DE RETORNO</label>
+                <input type="number" id="porcentagem-venda" value="5" oninput="calcLancar()">
+                <div style="text-align:right; margin-top:10px;">
+                    <small style="color:var(--text-dim)">Crédito ao cliente:</small>
+                    <div class="success-text" style="font-size:1.5rem">R$ <span id="previa-lancar">0.00</span></div>
+                </div>
             </div>
-            <button class="btn-main" onclick="fLancar()">Confirmar</button>
+            <button class="btn-main" onclick="fLancar()">Confirmar Lançamento</button>
         </section>
 
         <section id="tab-resgate" class="hidden">
             <h3>Resgate</h3>
-            <div class="card-glass">
-                <input type="text" id="resgate-cpf" maxlength="11" placeholder="CPF do Cliente">
-                <button class="btn-main" style="background:#334155; margin-top:10px" onclick="vSaldoResgate()">Verificar</button>
-                <div id="box-resgate-acao" class="hidden">
-                    <h2 class="success-text" style="margin-top:15px">Disponível: R$ <span id="resgate-saldo-viva">0.00</span></h2>
-                    <input type="number" id="valor-resgate" placeholder="Valor a descontar">
-                    <button class="btn-main" style="background:var(--danger); color:white; margin-top:15px;" onclick="fResgatar()">Resgatar</button>
+            <label>CPF DO CLIENTE</label>
+            <input type="text" id="resgate-cpf" placeholder="00000000000" maxlength="11">
+            <button class="btn-main" style="background:#334155; color:white;" onclick="vSaldoResgate()">Verificar Disponibilidade</button>
+            
+            <div id="box-resgate-acao" class="hidden" style="margin-top:20px">
+                <div class="card-glass">
+                    <p>Saldo: <span class="success-text">R$ <span id="resgate-saldo-viva">0.00</span></span></p>
+                    <label style="margin-top:15px">VALOR A RESGATAR (DESCONTO)</label>
+                    <input type="number" id="valor-resgate" placeholder="0.00">
                 </div>
+                <button class="btn-main" style="background:var(--danger); color:white" onclick="fResgatar()">Confirmar Resgate</button>
             </div>
         </section>
 
         <section id="tab-mural" class="hidden">
             <h3>Mural de Ofertas</h3>
             <div class="card-glass">
-                <input type="text" id="mural-titulo" placeholder="Título"><textarea id="mural-desc" rows="2" placeholder="Descreva a oferta..." style="margin-top:10px"></textarea>
-                <button class="btn-main" style="margin-top:10px" onclick="fPublicar()">Publicar</button>
+                <input type="text" id="mural-titulo" placeholder="Ex: 20% OFF em Cortes">
+                <textarea id="mural-desc" rows="2" placeholder="Descreva os detalhes da oferta..."></textarea>
+                <button class="btn-main" onclick="fPublicar()">Publicar no App do Cliente</button>
             </div>
             <div id="feed-ofertas"></div>
         </section>
 
-        <section id="tab-registros" class="hidden"><h3>Histórico</h3><div id="lista-hist"></div></section>
+        <section id="tab-registros" class="hidden">
+            <h3>Histórico de Movimentações</h3>
+            <div id="lista-hist"></div>
+        </section>
     </div>
 
     <nav id="nav-main" class="nav-bar hidden">
@@ -231,72 +169,49 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { 
+        getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+        onAuthStateChanged, signOut, sendPasswordResetEmail 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { 
+        getFirestore, doc, onSnapshot, collection, addDoc, setDoc,
+        query, where, orderBy, serverTimestamp, deleteDoc 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // Configuração do seu Projeto
     const firebaseConfig = {
       apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
       authDomain: "dapfycashback-92583.firebaseapp.com",
       projectId: "dapfycashback-92583",
       storageBucket: "dapfycashback-92583.firebasestorage.app",
       messagingSenderId: "1041877443665",
-      appId: "1:1041877443665:web:0792707a9f1abe28c80470"
+      appId: "1:1041877443665:web:d6186f8ea8d57e16c80470"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentAuthMode = 'login';
-    let lojistaData = null;
+    let authMode = 'login';
 
-    // SISTEMA DE AUTENTICAÇÃO
-    window.fAuth = async () => {
-        const e = document.getElementById('auth-email').value;
-        const p = document.getElementById('auth-pass').value;
-        const l = document.getElementById('auth-loja').value;
-        try {
-            if(currentAuthMode === 'cadastro') {
-                const res = await createUserWithEmailAndPassword(auth, e, p);
-                const dataFim = new Date(); dataFim.setDate(dataFim.getDate() + 30);
-                await setDoc(doc(db, "lojistas", res.user.uid), {
-                    nomeLoja: l, icone: 'fa-store', registros: [], ofertas: [], status: 'ativo', validadePlano: dataFim.toISOString().split('T')[0]
-                });
-            } else { await signInWithEmailAndPassword(auth, e, p); }
-        } catch (err) { alert(err.message); }
-    };
-
-    // MONITORAMENTO EM TEMPO REAL (BLOQUEIO INTEGRADO AQUI)
+    // Gerenciador de Autenticação
     onAuthStateChanged(auth, (user) => {
         if(user) {
             onSnapshot(doc(db, "lojistas", user.uid), (snap) => {
-                if(snap.exists()){
-                    lojistaData = snap.data();
-
-                    // VERIFICAÇÃO DE BLOQUEIO ADMINISTRATIVO
-                    if(lojistaData.status === 'bloqueado') {
-                        document.getElementById('screen-blocked').classList.remove('hidden');
-                        document.getElementById('nav-main').classList.add('hidden');
-                        document.getElementById('header-main').classList.add('hidden');
-                        return;
-                    } else {
-                        document.getElementById('screen-blocked').classList.add('hidden');
-                    }
-
-                    // VERIFICAÇÃO DE PRAZO
-                    const hoje = new Date();
-                    const venc = new Date(lojistaData.validadePlano);
-                    const diff = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
-                    if(diff <= 0) { alert("Assinatura expirada."); signOut(auth); return; }
-
-                    document.getElementById('contagem-dias').innerText = `${diff} dias restantes`;
-                    document.getElementById('banner-pagamento').style.display = diff <= 3 ? 'flex' : 'none';
-                    document.getElementById('display-loja').innerText = lojistaData.nomeLoja;
-                    document.getElementById('main-avatar-icon').innerHTML = `<i class="fa-solid ${lojistaData.icone}" style="color:var(--primary)"></i>`;
-                    
-                    renderMural(); renderHist();
+                if(!snap.exists()) {
+                    // Caso o user exista no Auth mas não no Firestore (segurança)
+                    signOut(auth);
+                    return;
+                }
+                const data = snap.data();
+                if(data.status === 'bloqueado') {
+                    document.getElementById('screen-blocked').classList.remove('hidden');
+                } else {
+                    document.getElementById('display-loja').innerText = data.nomeLoja;
                     document.getElementById('screen-auth').classList.add('hidden');
                     document.querySelectorAll('#header-main, #nav-main, #tab-inicio').forEach(el => el.classList.remove('hidden'));
+                    monitorarHistorico(user.uid);
+                    monitorarMural(user.uid);
                 }
             });
         } else {
@@ -305,108 +220,184 @@
         }
     });
 
-    // LÓGICA DE NEGÓCIO MANTIDA ORIGINAL
+    window.switchAuth = (mode) => {
+        authMode = mode;
+        const isLogin = mode === 'login';
+        document.getElementById('tab-login').classList.toggle('active', isLogin);
+        document.getElementById('tab-cadastro').classList.toggle('active', !isLogin);
+        document.getElementById('field-nome-loja').classList.toggle('hidden', isLogin);
+        document.getElementById('forgot-pass').classList.toggle('hidden', !isLogin);
+        document.getElementById('btn-auth-action').innerText = isLogin ? 'Entrar no Sistema' : 'Criar Minha Conta Profissional';
+    };
+
+    window.fExecutarAuth = async () => {
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-pass').value;
+        const nome = document.getElementById('reg-nome').value;
+
+        try {
+            if(authMode === 'cadastro') {
+                if(!nome) throw new Error("Informe o nome da sua empresa");
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "lojistas", res.user.uid), {
+                    nomeLoja: nome,
+                    status: 'ativo',
+                    dataCriacao: serverTimestamp()
+                });
+            } else {
+                await signInWithEmailAndPassword(auth, email, pass);
+            }
+        } catch (err) { alert(err.message); }
+    };
+
+    window.fResetarSenha = () => {
+        const email = document.getElementById('auth-email').value;
+        if(!email) return alert("Digite seu e-mail acima para resetar a senha");
+        sendPasswordResetEmail(auth, email).then(() => alert("E-mail de recuperação enviado!")).catch(err => alert(err.message));
+    };
+
+    // Lógica de Vendas e Cashback
     window.buscarCliente = () => {
-        const cpf = document.getElementById('cpf-busca').value;
-        let s = 0; lojistaData.registros.filter(r => r.cpf === cpf).forEach(r => s += (r.type === 'IN' ? parseFloat(r.val) : -parseFloat(r.val)));
-        document.getElementById('res-saldo').innerText = s.toFixed(2);
-        document.getElementById('busca-resultado').classList.remove('hidden');
-        document.getElementById('lancar-cpf').value = cpf;
+        const cpf = document.getElementById('cpf-busca').value.replace(/\D/g, "");
+        if(cpf.length < 11) return alert("Digite o CPF completo");
+        
+        const q = query(collection(db, "transacoes"), 
+                  where("lojistaId", "==", auth.currentUser.uid),
+                  where("cpf", "==", cpf));
+
+        onSnapshot(q, (snap) => {
+            let saldo = 0;
+            snap.forEach(d => {
+                const r = d.data();
+                saldo += (r.type === 'IN' ? r.val : -r.val);
+            });
+            document.getElementById('res-saldo').innerText = saldo.toFixed(2);
+            document.getElementById('busca-resultado').classList.remove('hidden');
+            document.getElementById('lancar-cpf').value = cpf;
+        });
     };
 
     window.fLancar = async () => {
-        const v = document.getElementById('previa-lancar').innerText;
-        await updateDoc(doc(db, "lojistas", auth.currentUser.uid), {
-            registros: arrayUnion({ type:'IN', cpf: document.getElementById('lancar-cpf').value, val: v, data: new Date().toLocaleDateString() })
+        const v = parseFloat(document.getElementById('previa-lancar').innerText);
+        const cpf = document.getElementById('lancar-cpf').value;
+        if(v <= 0) return alert("Valor inválido");
+
+        await addDoc(collection(db, "transacoes"), {
+            lojistaId: auth.currentUser.uid,
+            cpf: cpf,
+            val: v,
+            type: 'IN',
+            data: serverTimestamp()
         });
-        alert("Sucesso!"); swTab('registros', document.querySelectorAll('.nav-item')[4]);
+        alert("Cashback Gerado com Sucesso!");
+        document.getElementById('valor-venda').value = "";
+        swTab('inicio', document.querySelectorAll('.nav-item')[0]);
     };
 
     window.vSaldoResgate = () => {
-        const cpf = document.getElementById('resgate-cpf').value;
-        let s = 0; lojistaData.registros.filter(r => r.cpf === cpf).forEach(r => s += (r.type === 'IN' ? parseFloat(r.val) : -parseFloat(r.val)));
-        document.getElementById('resgate-saldo-viva').innerText = s.toFixed(2);
-        document.getElementById('box-resgate-acao').classList.remove('hidden');
+        const cpf = document.getElementById('resgate-cpf').value.replace(/\D/g, "");
+        if(cpf.length < 11) return alert("CPF Inválido");
+
+        const q = query(collection(db, "transacoes"), 
+                  where("lojistaId", "==", auth.currentUser.uid),
+                  where("cpf", "==", cpf));
+
+        onSnapshot(q, (snap) => {
+            let saldo = 0;
+            snap.forEach(d => {
+                const r = d.data();
+                saldo += (r.type === 'IN' ? r.val : -r.val);
+            });
+            document.getElementById('resgate-saldo-viva').innerText = saldo.toFixed(2);
+            document.getElementById('box-resgate-acao').classList.remove('hidden');
+        });
     };
 
     window.fResgatar = async () => {
-        const v = document.getElementById('valor-resgate').value;
-        await updateDoc(doc(db, "lojistas", auth.currentUser.uid), {
-            registros: arrayUnion({ type:'OUT', cpf: document.getElementById('resgate-cpf').value, val: v, data: new Date().toLocaleDateString() })
+        const v = parseFloat(document.getElementById('valor-resgate').value);
+        const cpf = document.getElementById('resgate-cpf').value.replace(/\D/g, "");
+        const saldoDisp = parseFloat(document.getElementById('resgate-saldo-viva').innerText);
+
+        if(v > saldoDisp || v <= 0) return alert("Saldo insuficiente");
+
+        await addDoc(collection(db, "transacoes"), {
+            lojistaId: auth.currentUser.uid,
+            cpf: cpf,
+            val: v,
+            type: 'OUT',
+            data: serverTimestamp()
         });
-        alert("Resgatado!"); swTab('registros', document.querySelectorAll('.nav-item')[4]);
+        alert("Resgate Realizado!");
+        document.getElementById('box-resgate-acao').classList.add('hidden');
+        document.getElementById('valor-resgate').value = "";
     };
 
     window.fPublicar = async () => {
-        await updateDoc(doc(db, "lojistas", auth.currentUser.uid), {
-            ofertas: arrayUnion({ id: Date.now(), t: document.getElementById('mural-titulo').value, d: document.getElementById('mural-desc').value })
+        const t = document.getElementById('mural-titulo').value;
+        const d = document.getElementById('mural-desc').value;
+        if(!t) return alert("Título é obrigatório");
+
+        await addDoc(collection(db, "ofertas"), {
+            lojistaId: auth.currentUser.uid,
+            t: t, d: d, data: serverTimestamp()
         });
-        document.getElementById('mural-titulo').value = ""; document.getElementById('mural-desc').value = "";
+        document.getElementById('mural-titulo').value = "";
+        document.getElementById('mural-desc').value = "";
     };
 
-    window.fExcluirOferta = async (id) => {
-        if(confirm("Remover oferta?")) {
-            const n = lojistaData.ofertas.filter(o => o.id !== id);
-            await updateDoc(doc(db, "lojistas", auth.currentUser.uid), { ofertas: n });
-        }
+    function monitorarHistorico(uid) {
+        const q = query(collection(db, "transacoes"), where("lojistaId", "==", uid), orderBy("data", "desc"));
+        onSnapshot(q, (snap) => {
+            document.getElementById('lista-hist').innerHTML = snap.docs.map(doc => {
+                const r = doc.data();
+                const d = r.data ? r.data.toDate().toLocaleDateString() : 'Processando...';
+                return `
+                    <div class="card-glass">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <small style="color:var(--text-dim)">CPF: ${r.cpf}</small>
+                            <small style="color:var(--primary)">${d}</small>
+                        </div>
+                        <div class="${r.type=='IN'?'success-text':'danger-text'}" style="font-size:1.1rem">
+                            ${r.type=='IN'?'+':'-'} R$ ${r.val.toFixed(2)}
+                        </div>
+                    </div>`;
+            }).join('');
+        });
+    }
+
+    function monitorarMural(uid) {
+        const q = query(collection(db, "ofertas"), where("lojistaId", "==", uid), orderBy("data", "desc"));
+        onSnapshot(q, (snap) => {
+            document.getElementById('feed-ofertas').innerHTML = snap.docs.map(doc => {
+                const o = doc.data();
+                return `
+                    <div class="offer-card">
+                        <button class="btn-del" onclick="fDeletar('ofertas', '${doc.id}')"><i class="fa-solid fa-trash"></i></button>
+                        <h4 style="color:var(--primary)">${o.t}</h4>
+                        <p style="font-size:0.8rem; color:var(--text-dim); margin-top:5px;">${o.d}</p>
+                    </div>`;
+            }).join('');
+        });
+    }
+
+    window.fDeletar = async (col, id) => {
+        if(confirm("Deseja remover esta oferta do mural dos clientes?")) await deleteDoc(doc(db, col, id));
     };
 
-    window.renderMural = () => {
-        document.getElementById('feed-ofertas').innerHTML = lojistaData.ofertas.map(o => `
-            <div class="offer-card">
-                <button class="btn-delete-promo" onclick="fExcluirOferta(${o.id})"><i class="fa-solid fa-trash"></i></button>
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px">
-                    <i class="fa-solid ${lojistaData.icone}" style="color:var(--primary); font-size:0.7rem"></i>
-                    <span style="font-size:0.6rem; color:var(--text-dim); text-transform:uppercase">${lojistaData.nomeLoja}</span>
-                </div>
-                <h4>${o.t}</h4><p>${o.d}</p>
-            </div>`).reverse().join('');
-    };
-
-    window.renderHist = () => {
-        document.getElementById('lista-hist').innerHTML = lojistaData.registros.map(r => `
-            <div class="card-glass">
-                <div style="display:flex; justify-content:space-between"><strong>CPF: ${r.cpf}</strong><small>${r.data}</small></div>
-                <div class="${r.type=='IN'?'success-text':'danger-text'}">${r.type=='IN'?'+ R$':'- R$'} ${r.val}</div>
-            </div>`).reverse().join('');
-    };
-
-    // AUXILIARES UI
-    window.fLogout = () => signOut(auth);
-    window.toggleConfig = () => document.getElementById('modal-config').classList.toggle('hidden');
+    window.fLogout = () => signOut(auth).then(() => location.reload());
+    
     window.swTab = (id, el) => {
         document.querySelectorAll('.content section').forEach(s => s.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('tab-'+id).classList.remove('hidden');
         el.classList.add('active');
     };
-    window.switchAuthTab = (mode) => {
-        currentAuthMode = mode;
-        document.getElementById('btn-tab-login').classList.toggle('active', mode === 'login');
-        document.getElementById('btn-tab-cadastro').classList.toggle('active', mode === 'cadastro');
-        document.getElementById('group-loja-name').classList.toggle('hidden', mode === 'login');
-    };
+
     window.calcLancar = () => {
         const v = parseFloat(document.getElementById('valor-venda').value) || 0;
         const p = parseFloat(document.getElementById('porcentagem-venda').value) || 0;
         document.getElementById('previa-lancar').innerText = (v * (p/100)).toFixed(2);
     };
-    window.enviarComprovante = () => {
-        window.open(`https://wa.me/5551984107530?text=Comprovante DAPfy: ${lojistaData.nomeLoja}`, '_blank');
-    };
-    window.salvarConfigFirebase = async () => {
-        const n = document.getElementById('config-nome-loja').value;
-        const i = document.querySelector('.avatar-option.selected').dataset.icon;
-        await updateDoc(doc(db, "lojistas", auth.currentUser.uid), { nomeLoja: n, icone: i });
-        toggleConfig();
-    };
-
-    document.querySelectorAll('.avatar-option').forEach(opt => {
-        opt.onclick = () => {
-            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
-            opt.classList.add('selected');
-        };
-    });
 </script>
 </body>
 </html>
